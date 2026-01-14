@@ -1,0 +1,14 @@
+# 🎯 PROJECT RULES (ENTRY POINT)
+
+This repository follows a strict "Agent Governance Protocol." Before performing any task, writing any code, or suggesting any architectural changes, you MUST read and adhere to the core protocol.
+
+## 🧠 CORE PROTOCOL
+Location: `AGENT.md`
+
+## 🛠️ QUICK COMMANDS (FROM PROTOCOL)
+- **Backend:** `uvicorn backend.main:app --reload`
+- **Tests:** `pytest backend/tests/` | `npm test`
+- **Linting:** `ruff check .` | `npm run lint`
+
+## 🏗️ MODULARITY PRINCIPLE
+This file serves as the technical bridge for IDEs (like Cursor/VS Code). The reasoning logic and project philosophy reside in `AGENT.md`, and custom scripts reside in `command_patterns/`. If you are an AI agent, your first action should be to load this context.
