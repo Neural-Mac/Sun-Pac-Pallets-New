@@ -36,6 +36,7 @@ import {
   Clock,
   Mail
 } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 
 // --- STYLES & CONFIGURATION ---
 const HexCodes = {
@@ -1036,13 +1037,11 @@ const App = () => {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'py-4 bg-[#202020]/90 backdrop-blur-md border-b border-[#a39603]/30' : 'py-6 bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <a href="/" className="h-12 w-auto flex items-center justify-center mr-2 hover:opacity-80 transition-opacity">
-               <div className="border-2 border-[#ffea05] px-2 py-1 bg-black/20 backdrop-blur-sm">
-                  <span className="font-stencil text-2xl text-[#ffea05] tracking-widest leading-none drop-shadow-[0_0_5px_rgba(255,234,5,0.5)]">SPP</span>
-               </div>
+            <a href="/" className="hover:opacity-80 transition-opacity">
+               <Logo />
             </a>
             <div>
-              <span className="font-serif text-xl tracking-tight block leading-none text-white">Sun Pac Pallets</span>
+              <span className="font-serif text-xl tracking-tight block leading-none text-white"><a href="/">Sun Pac Pallets</a></span>
               <span className="font-sans text-[10px] tracking-widest text-[#a39603] uppercase font-bold block mt-1">Pallet Engineering</span>
             </div>
           </div>
