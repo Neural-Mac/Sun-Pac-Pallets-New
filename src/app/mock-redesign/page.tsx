@@ -937,6 +937,32 @@ const ProcessTimeline = () => {
 };
 
 const EfficiencySection = () => {
+    const [rotation, setRotation] = useState({ x: 20, y: -30 });
+    const [isDragging, setIsDragging] = useState(false);
+    const lastMousePos = useRef({ x: 0, y: 0 });
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        setIsDragging(true);
+        lastMousePos.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - lastMousePos.current.x;
+        const deltaY = e.clientY - lastMousePos.current.y;
+        
+        setRotation(prev => ({
+            x: Math.max(-90, Math.min(90, prev.x - deltaY * 0.5)), // Invert Y axis natural feel
+            y: prev.y + deltaX * 0.5
+        }));
+        
+        lastMousePos.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
     return (
         <section className="py-32 bg-[#050505] relative overflow-hidden">
             {/* Background Map/Grid Trace */}
@@ -980,42 +1006,71 @@ const EfficiencySection = () => {
                     </div>
                 </div>
 
-                {/* Visual: Exploded Wireframe Mockup */}
-                <div className="relative h-[500px] w-full bg-[#111] rounded-lg border border-white/5 overflow-hidden group">
+                {/* Interactive Visual: 3D Pallet Schematic */}
+                <div 
+                    className="relative h-[500px] w-full bg-[#111] rounded-lg border border-white/5 overflow-hidden cursor-grab active:cursor-grabbing group select-none"
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                >
                     {/* Grid Overlay */}
-                    <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,148,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,148,0.03)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,148,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,148,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
                     
-                    {/* Scanner Bar Animation */}
-                     <div className="absolute top-0 left-0 w-full h-[2px] bg-[#00FF94] shadow-[0_0_20px_#00FF94] animate-[scan_3s_ease-in-out_infinite]"></div>
+                    {/* Hint Overlay */}
+                    <div className="absolute top-4 right-4 z-20 pointer-events-none flex items-center gap-2 opacity-50">
+                        <div className="bg-[#00FF94] w-2 h-2 rounded-full animate-pulse"></div>
+                        <span className="text-[#00FF94] text-[10px] font-mono uppercase tracking-widest">Hold Click to Rotate</span>
+                    </div>
 
-                    {/* Wireframe Pallet Representation (CSS Composition) */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 perspective-1000">
-                         {/* This would be better with an SVG or Image, but CSS blocks can imply it */}
-                         <div className="relative w-full h-full transform rotate-x-[60deg] rotate-z-[45deg] transform-style-3d group-hover:rotate-z-[60deg] transition-transform duration-1000">
-                            {/* Top Deck */}
-                            <div className="absolute top-0 left-0 w-full h-full border-2 border-[#00FF94]/50 bg-[#00FF94]/5 translate-z-[40px] shadow-[0_0_30px_rgba(0,255,148,0.1)]"></div>
-                            <div className="absolute top-0 left-0 w-full h-full flex justify-between translate-z-[40px]">
-                                {[1,2,3,4,5].map(i => (
-                                    <div key={i} className="h-full w-[15%] bg-[#00FF94]/10 border border-[#00FF94]/30"></div>
-                                ))}
+                    {/* Scanner Bar Animation */}
+                     <div className="absolute top-0 left-0 w-full h-[2px] bg-[#00FF94] shadow-[0_0_20px_#00FF94] animate-[scan_3s_ease-in-out_infinite] pointer-events-none z-10"></div>
+
+                    {/* 3D Pallet Container */}
+                    <div className="absolute top-1/2 left-1/2 w-64 h-64 pointer-events-none" style={{ perspective: '1000px' }}>
+                         <div 
+                            className="w-full h-full transform-style-3d transition-transform duration-75 ease-out"
+                            style={{ 
+                                transform: `translate(-50%, -50%) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)` 
+                            }}
+                         >
+                            
+                            {/* Layer 1: Top Deck (7 Boards with Spacing) */}
+                            <div className="absolute inset-0 translate-z-[50px] transform-style-3d">
+                                <div className="w-full h-full flex justify-between">
+                                    {[...Array(7)].map((_, i) => (
+                                        <div key={`top-${i}`} className="h-full w-[9%] bg-[#00FF94]/10 border border-[#00FF94]/50 shadow-[0_0_10px_rgba(0,255,148,0.2)]"></div>
+                                    ))}
+                                </div>
                             </div>
 
-                            {/* Stringers */}
-                            <div className="absolute top-[20%] left-0 w-full h-[10%] bg-emerald-900/40 border border-[#00FF94]/20 translate-z-[20px]"></div>
-                            <div className="absolute top-[50%] left-0 w-full h-[10%] bg-emerald-900/40 border border-[#00FF94]/20 translate-z-[20px]"></div>
-                            <div className="absolute top-[80%] left-0 w-full h-[10%] bg-emerald-900/40 border border-[#00FF94]/20 translate-z-[20px]"></div>
+                            {/* Layer 2: Stringers (3 Beams) */}
+                            <div className="absolute inset-0 translate-z-[25px] transform-style-3d">
+                                <div className="w-full h-full flex flex-col justify-between">
+                                    {[...Array(3)].map((_, i) => (
+                                        <div key={`stringer-${i}`} className="w-full h-[15%] bg-emerald-900/60 border border-[#00FF94]/50 shadow-[0_0_10px_rgba(0,255,148,0.1)]"></div>
+                                    ))}
+                                </div>
+                            </div>
 
-                            {/* Bottom Deck */}
-                            <div className="absolute top-0 left-0 w-full h-full border border-white/10 translate-z-0 opacity-50"></div>
+                            {/* Layer 3: Bottom Deck (3 Boards) */}
+                             <div className="absolute inset-0 translate-z-0 transform-style-3d opacity-80">
+                                <div className="w-full h-full flex justify-between gap-1">
+                                     <div className="h-full w-[20%] bg-[#00FF94]/10 border border-[#00FF94]/40"></div>
+                                     <div className="h-full w-[20%] bg-[#00FF94]/10 border border-[#00FF94]/40"></div>
+                                     <div className="h-full w-[20%] bg-[#00FF94]/10 border border-[#00FF94]/40"></div>
+                                </div>
+                            </div>
+
                          </div>
                     </div>
 
-                    {/* Data Points */}
-                    <div className="absolute top-1/3 left-10 bg-black/80 backdrop-blur border-l-2 border-[#00FF94] px-4 py-2">
+                    {/* Data Points (Static Overlay) */}
+                    <div className="absolute top-1/3 left-10 bg-black/80 backdrop-blur border-l-2 border-[#00FF94] px-4 py-2 pointer-events-none">
                         <div className="text-[10px] text-[#00FF94] font-mono mb-1">STATIC LOAD</div>
                         <div className="text-white font-bold">2,500 LBS</div>
                     </div>
-                     <div className="absolute bottom-1/3 right-10 bg-black/80 backdrop-blur border-r-2 border-[#00FF94] px-4 py-2 text-right">
+                     <div className="absolute bottom-1/3 right-10 bg-black/80 backdrop-blur border-r-2 border-[#00FF94] px-4 py-2 text-right pointer-events-none">
                         <div className="text-[10px] text-[#00FF94] font-mono mb-1">MATERIAL</div>
                         <div className="text-white font-bold">SPF KD-HT</div>
                     </div>
@@ -1023,6 +1078,249 @@ const EfficiencySection = () => {
                 </div>
             </div>
         </section>
+    );
+};
+
+
+const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
+    const [isCustomSubject, setIsCustomSubject] = useState(false);
+    const [subject, setSubject] = useState("");
+    const [status, setStatus] = useState<{ isOpen: boolean; text: string }>({ isOpen: false, text: "CHECKING..." });
+    
+    // Industrial "Select" implementation
+    const handleSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        if (e.target.value === "custom") {
+            setIsCustomSubject(true);
+            setSubject("");
+        } else {
+            setSubject(e.target.value);
+        }
+    };
+
+    // Real-time Operation Status Logic
+    useEffect(() => {
+        const checkStatus = () => {
+            const now = new Date();
+            const day = now.getDay(); // 0 = Sun, 6 = Sat
+            const hour = now.getHours();
+            
+            // Mon(1) - Sat(6), 7am - 4pm (16:00)
+            const isOpenDay = day >= 1 && day <= 6;
+            const isOpenHour = hour >= 7 && hour < 16;
+            
+            if (isOpenDay && isOpenHour) {
+                setStatus({ isOpen: true, text: "ONLINE" });
+            } else {
+                // Determine next opening
+                let nextDay = "TOMORROW";
+                if (day === 6 && hour >= 16) nextDay = "MONDAY"; // Sat after close -> Mon
+                if (day === 0) nextDay = "TOMORROW"; // Sun -> Mon
+                
+                setStatus({ isOpen: false, text: `OFFLINE • OPENS ${nextDay} 7AM` });
+            }
+        };
+        
+        checkStatus();
+        const interval = setInterval(checkStatus, 60000); // Update every min
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <footer className="bg-[#080808] border-t border-white/10 pt-20 pb-12 relative overflow-hidden text-sm">
+             {/* Tech Grid Background (Subtle) */}
+             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,234,5,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,234,5,0.02)_1px,transparent_1px)] bg-[size:40px_40px] opacity-30"></div>
+
+            <div className="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-12 gap-16 items-start">
+                
+                {/* Column 1: Compact Inquiry Form (Span 5) */}
+                <div className="lg:col-span-5">
+                    <div className="bg-[#111] border-l-4 border-[#FFEA05] p-6 shadow-2xl relative group">
+                        <div className="absolute -top-3 -right-3 w-16 h-16 border-t-2 border-r-2 border-[#FFEA05]/20 rounded-tr-xl group-hover:border-[#FFEA05] transition-colors duration-500"></div>
+                        
+                        <div className="mb-6">
+                            <h3 className="text-2xl font-serif text-white tracking-tight">Quick Inquiry</h3>
+                            <p className="text-gray-500 text-xs mt-1">Direct channel to engineering sales support.</p>
+                        </div>
+
+                        <form className="space-y-4">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <input type="text" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors rounded-none placeholder-gray-600 text-sm" placeholder="NAME" />
+                                </div>
+                                <div>
+                                    <input type="email" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors rounded-none placeholder-gray-600 text-sm" placeholder="EMAIL" />
+                                </div>
+                            </div>
+                            
+                            <div className="relative">
+                                {isCustomSubject ? (
+                                    <div className="relative animate-in fade-in zoom-in-95 duration-200">
+                                        <input 
+                                            type="text" 
+                                            className="w-full bg-[#050505] border border-[#FFEA05] text-white px-3 py-2.5 focus:outline-none rounded-none placeholder-gray-500"
+                                            placeholder="Type specific subject..."
+                                            value={subject}
+                                            onChange={(e) => setSubject(e.target.value)}
+                                            autoFocus
+                                        />
+                                        <button 
+                                            type="button" 
+                                            onClick={() => { setIsCustomSubject(false); setSubject(""); }}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#FFEA05]"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="relative">
+                                         <select 
+                                            className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors appearance-none rounded-none text-gray-300 cursor-pointer"
+                                            onChange={handleSubjectChange}
+                                            defaultValue=""
+                                        >
+                                            <option value="" disabled>SELECT SUBJECT...</option>
+                                            <option value="quote">New Order Request</option>
+                                            <option value="cutting">Wood Cutting Service</option>
+                                            <option value="logistics">Logistics / Shipping</option>
+                                            <option value="billing">Billing Inquiry</option>
+                                            <option value="custom" className="text-[#FFEA05] font-bold">» Custom (Type your own)</option>
+                                        </select>
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                                            <ArrowRight size={12} className="rotate-90" />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <textarea rows={3} className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors resize-none rounded-none placeholder-gray-600 text-sm" placeholder="MESSAGE DETAILS..."></textarea>
+
+                            {/* Compact File Upload */}
+                            <div className="border border-dashed border-white/10 bg-white/5 py-4 text-center hover:border-[#FFEA05] hover:bg-[#FFEA05]/5 transition-all cursor-pointer">
+                                <span className="text-[10px] text-gray-400 uppercase tracking-widest group-hover:text-[#FFEA05] transition-colors flex items-center justify-center gap-2">
+                                    <div className="w-4 h-4 border border-current flex items-center justify-center rounded-sm">+</div> Attach File
+                                </span>
+                            </div>
+
+                            <button className="w-full bg-[#FFEA05] hover:bg-[#ebd700] text-black font-black uppercase tracking-[0.1em] py-3 text-xs transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_20px_rgba(255,234,5,0.2)]">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {/* Column 2: Dense Info Grid (Span 7) */}
+                <div className="lg:col-span-7 flex flex-col h-full justify-between">
+                    
+                    {/* Top Section: 2x2 Data Grid */}
+                    <div className="grid md:grid-cols-2 gap-x-12 gap-y-10 mb-12">
+                        
+                        {/* 1. Production Site */}
+                        <div>
+                            <h4 className="flex items-center gap-2 text-[#FFEA05] text-[10px] font-bold uppercase tracking-widest mb-3">
+                                <div className="w-1.5 h-1.5 bg-[#FFEA05] rounded-full"></div> Production Facility
+                            </h4>
+                            <div className="text-gray-300 font-mono text-sm leading-relaxed border-l-2 border-white/10 pl-4">
+                                <span className="text-white block font-bold text-base">Uxbridge, ON</span>
+                                8999 Concession Rd 5<br/>
+                                L9P 1R1
+                            </div>
+                        </div>
+
+                         {/* 2. Operational Hours */}
+                         <div>
+                            <h4 className="flex items-center gap-2 text-[#FFEA05] text-[10px] font-bold uppercase tracking-widest mb-3">
+                                <div className="w-1.5 h-1.5 bg-[#FFEA05] rounded-full animate-pulse"></div> Hours of Operations
+                            </h4>
+                            <div className="text-gray-300 font-mono text-sm leading-relaxed border-l-2 border-white/10 pl-4">
+                                <span className="text-white block font-bold text-base">MON - SAT</span>
+                                7:00am - 4:00pm
+                            </div>
+                        </div>
+
+                        {/* 3. Contact Us */}
+                        <div>
+                            <h4 className="flex items-center gap-2 text-[#FFEA05] text-[10px] font-bold uppercase tracking-widest mb-3">
+                                <div className="w-1.5 h-1.5 bg-[#FFEA05] rounded-full"></div> Contact Us
+                            </h4>
+                            <div className="flex flex-col gap-3 border-l-2 border-white/10 pl-4">
+                                <div>
+                                    <div className="text-[10px] text-gray-500 uppercase">General</div>
+                                    <a href="tel:6476179511" className="text-white hover:text-[#FFEA05] transition-colors font-mono tracking-tight text-lg font-bold">647-617-9511</a>
+                                </div>
+                                <div>
+                                    <div className="text-[10px] text-gray-500 uppercase">Sales</div>
+                                    <a href="tel:6479513080" className="text-white hover:text-[#FFEA05] transition-colors font-mono tracking-tight text-lg font-bold">647-951-3080</a>
+                                </div>
+                                <div>
+                                     <a href="mailto:sales@sunpacpallets.com" className="text-gray-400 hover:text-white transition-colors text-xs border-b border-gray-700 hover:border-white pb-0.5">sales@sunpacpallets.com</a>
+                                </div>
+                            </div>
+                        </div>
+
+                         {/* 4. Service Area */}
+                         <div>
+                            <h4 className="flex items-center gap-2 text-[#FFEA05] text-[10px] font-bold uppercase tracking-widest mb-3">
+                                <div className="w-1.5 h-1.5 bg-[#FFEA05] rounded-full"></div> Service Area
+                            </h4>
+                            <div className="border-l-2 border-white/10 pl-4">
+                                <div className="flex flex-col gap-1 text-[11px] uppercase font-bold text-gray-400">
+                                    <span className="text-white">Ontario</span>
+                                    <span>Canada Wide</span>
+                                    <span>USA / Cross Border</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Bottom: "Start Project" CTA Module */}
+                    <div 
+                        onClick={onRequestQuote}
+                        className="mt-auto bg-[#1a1a1a] border border-white/10 p-6 flex items-center justify-between cursor-pointer group hover:border-[#FFEA05] transition-all duration-300 relative overflow-hidden"
+                    >
+                        <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-[#FFEA05]/10 to-transparent transform skew-x-12 translate-x-12 group-hover:translate-x-0 transition-transform duration-500"></div>
+                        
+                        <div className="flex items-center gap-6 relative z-10">
+                            {/* Animated Pallet Icon Block */}
+                            <div className="w-12 h-12 bg-[#000] border border-white/20 flex items-center justify-center group-hover:border-[#FFEA05] transition-colors relative">
+                                {/* Simulated Pallet Icon using DIVs */}
+                                <div className="w-6 h-1 bg-gray-500 group-hover:bg-[#FFEA05] absolute top-[18px]"></div>
+                                <div className="w-6 h-1 bg-gray-500 group-hover:bg-[#FFEA05] absolute bottom-[18px]"></div>
+                                <div className="w-1 h-3 bg-gray-600 group-hover:bg-[#FFEA05]/80 absolute left-[12px]"></div>
+                                <div className="w-1 h-3 bg-gray-600 group-hover:bg-[#FFEA05]/80 absolute right-[12px]"></div>
+                                <div className="w-1 h-3 bg-gray-600 group-hover:bg-[#FFEA05]/80 absolute"></div>
+                            </div>
+                            
+                            <div>
+                                <div className="text-white font-bold text-xl tracking-tight group-hover:text-[#FFEA05] transition-colors">Start a Configuration</div>
+                                <div className="text-gray-500 text-xs uppercase tracking-wider group-hover:text-white transition-colors">
+                                    Quote Engine <span className={`ml-2 ${status.isOpen ? 'text-[#FFEA05]' : 'text-red-500'}`}>● {status.text}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                         <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-[#FFEA05] group-hover:text-black transition-all">
+                            <ArrowRight size={18} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+             {/* Footer Bottom Line */}
+             <div className="max-w-7xl mx-auto px-6 mt-16 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-zinc-600 font-mono uppercase">
+                 <div>
+                     Sun Pac Pallets Inc. © 2026 // EST. 2002
+                 </div>
+                 <div className="flex gap-8">
+                     <a href="#" className="hover:text-zinc-400 transition-colors">Privacy Protocol</a>
+                     <a href="#" className="hover:text-zinc-400 transition-colors">Terms of Service</a>
+                     <span className="text-[#FFEA05]/50 flex items-center gap-1">
+                        <div className="w-1 h-1 bg-[#FFEA05] rounded-full"></div> All Systems Normal
+                     </span>
+                 </div>
+             </div>
+        </footer>
     );
 };
 
@@ -1044,7 +1342,7 @@ export default function MockRedesignPage() {
       <Hero calculatorRef={calculatorRef} />
       <ProcessTimeline />
       <EfficiencySection />
-      {/* Footer previously here, implicitly at bottom of layout or next step */}
+      <Footer onRequestQuote={handleRequestQuote} />
     </DarkIndustrialTheme>
   );
 }

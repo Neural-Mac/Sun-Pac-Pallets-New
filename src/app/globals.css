@@ -73,3 +73,36 @@ body {
   25% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+  .translate-z-0 {
+    transform: translateZ(0px);
+  }
+  .translate-z-\[20px\] {
+    transform: translateZ(20px);
+  }
+  .translate-z-\[40px\] {
+    transform: translateZ(40px);
+  }
+  .rotate-x-90 {
+    transform: rotateX(90deg);
+  }
+  .rotate-y-90 {
+    transform: rotateY(90deg);
+  }
+  .rotate-x-\[60deg\] {
+    transform: rotateX(60deg);
+  }
+  .rotate-z-\[45deg\] {
+    transform: rotateZ(45deg);
+  }
+  .rotate-z-\[60deg\] {
+    transform: rotateZ(60deg);
+  }
+}
