@@ -1,0 +1,68 @@
+﻿next.config.ts(12,3): error TS2353: Object literal may only specify known properties, and 'eslint' does not exist in type 'NextConfig'.
+src/app/mock-design/wood-cutting/page.tsx(97,25): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ topDeck: { count: string; thick: string; width: string; length: string; }; bottomDeck: { count: string; thick: string; width: string; length: string; }; stringers: { count: string; thick: string; width: string; length: string; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ topDeck: { count: string; thick: string; width: string; length: string; }; bottomDeck: { count: string; thick: string; width: string; length: string; }; stringers: { count: string; thick: string; width: string; length: string; }; }'.
+src/app/mock-design/wood-cutting/page.tsx(336,52): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ count: string; thick: string; width: string; length: string; } | { count: string; thick: string; width: string; length: string; } | { count: string; thick: string; width: string; length: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ count: string; thick: string; width: string; length: string; } | { count: string; thick: string; width: string; length: string; } | { count: string; thick: string; width: string; length: string; }'.
+src/app/mock-design/wood-cutting/page.tsx(363,83): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'size' does not exist in type 'Partial<unknown> & Attributes'.
+src/app/mock-redesign/page.tsx(141,25): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ topDeck: { count: string; thick: string; width: string; length: string; }; bottomDeck: { count: string; thick: string; width: string; length: string; }; stringers: { count: string; thick: string; width: string; length: string; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ topDeck: { count: string; thick: string; width: string; length: string; }; bottomDeck: { count: string; thick: string; width: string; length: string; }; stringers: { count: string; thick: string; width: string; length: string; }; }'.
+src/app/mock-redesign/page.tsx(378,52): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ count: string; thick: string; width: string; length: string; } | { count: string; thick: string; width: string; length: string; } | { count: string; thick: string; width: string; length: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ count: string; thick: string; width: string; length: string; } | { count: string; thick: string; width: string; length: string; } | { count: string; thick: string; width: string; length: string; }'.
+src/app/mock-redesign/page.tsx(405,83): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'size' does not exist in type 'Partial<unknown> & Attributes'.
+src/app/mock-redesign/page.tsx(593,88): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'size' does not exist in type 'Partial<unknown> & Attributes'.
+src/app/mock-redesign/page.tsx(1401,13): error TS2322: Type 'RefObject<{ start: (isQualified: boolean) => void; } | null>' is not assignable to type 'RefObject<{ start: (isQualified: boolean) => void; }>'.
+  Type '{ start: (isQualified: boolean) => void; } | null' is not assignable to type '{ start: (isQualified: boolean) => void; }'.
+    Type 'null' is not assignable to type '{ start: (isQualified: boolean) => void; }'.
+src/app/page.tsx(53,28): error TS7031: Binding element 'onClose' implicitly has an 'any' type.
+src/app/page.tsx(53,37): error TS7031: Binding element 'onQualify' implicitly has an 'any' type.
+src/app/page.tsx(53,48): error TS7031: Binding element 'onStandard' implicitly has an 'any' type.
+src/app/page.tsx(361,60): error TS2322: Type 'string' is not assignable to type 'number'.
+src/app/page.tsx(518,29): error TS7006: Parameter 'section' implicitly has an 'any' type.
+src/app/page.tsx(518,38): error TS7006: Parameter 'field' implicitly has an 'any' type.
+src/app/page.tsx(518,45): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/page.tsx(523,25): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ topDeck: { count: string; thick: string; width: string; length: string; }; bottomDeck: { count: string; thick: string; width: string; length: string; }; stringers: { count: string; thick: string; width: string; length: string; }; }'.
+src/app/page.tsx(528,32): error TS7006: Parameter 'field' implicitly has an 'any' type.
+src/app/page.tsx(528,39): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/page.tsx(536,29): error TS7006: Parameter 'newType' implicitly has an 'any' type.
+src/app/page.tsx(543,41): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/page.tsx(592,37): error TS7006: Parameter 'textToRead' implicitly has an 'any' type.
+src/app/page.tsx(893,19): error TS2322: Type 'string' is not assignable to type 'number'.
+src/components/sections/Hero.tsx(45,13): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { duration: number; ease: string; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { duration: number; ease: string; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: string; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ duration: number; ease: string; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: string; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'string' is not assignable to type 'Easing | Easing[] | undefined'.
+src/components/sections/Hero.tsx(53,13): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { duration: number; ease: string; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { duration: number; ease: string; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: string; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ duration: number; ease: string; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: string; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'string' is not assignable to type 'Easing | Easing[] | undefined'.
+src/components/sections/Hero.tsx(61,13): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { duration: number; ease: string; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { duration: number; ease: string; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: string; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ duration: number; ease: string; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: string; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'string' is not assignable to type 'Easing | Easing[] | undefined'.

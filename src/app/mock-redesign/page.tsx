@@ -32,6 +32,7 @@ import {
   Trees,
   ChevronDown
 } from "lucide-react";
+import { ProcessTimeline } from "./ProcessTimeline";
 
 // --- MOCK THEME WRAPPER (DARK INDUSTRIAL) ---
 const DarkIndustrialTheme = ({ children }: { children: React.ReactNode }) => {
@@ -48,6 +49,9 @@ const DarkIndustrialTheme = ({ children }: { children: React.ReactNode }) => {
           "--font-sans": "'Inter', sans-serif",
           backgroundColor: "#111111",
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E")`,
+          // Phase 3.1: Global Native Feel (Touch & Tap)
+          touchAction: "manipulation", 
+          WebkitTapHighlightColor: "transparent"
         } as React.CSSProperties
       }
     >
@@ -130,7 +134,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
       setFormData(prev => ({ ...prev, type: newType }));
       if (newType === 'Custom') setShowAdvancedSpecs(true);
   };
-  const handleSpecChange = (section: string, field: string, value: string) => {
+  const handleSpecChange = (section: keyof typeof formData.customSpec, field: keyof typeof formData.customSpec.topDeck, value: string) => {
     setFormData(prev => ({
       ...prev,
       customSpec: {
@@ -143,6 +147,13 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
   // Fluid Height Transition Logic
   const contentRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState<number | 'auto'>('auto');
+
+  // Fix: Scroll to top of form on step change (Mobile)
+  useEffect(() => {
+      if (step > 1 && contentRef.current) {
+          contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+  }, [step]);
 
   useEffect(() => {
     if (!contentRef.current) return;
@@ -409,7 +420,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                        <input 
                          type="text" 
                          placeholder="e.g. 2500" 
-                         className="w-full bg-[#111] border border-gray-600 text-white text-xs rounded-sm p-2 focus:border-[#FFEA05] focus:outline-none"
+                         className="w-full bg-[#111] border border-gray-600 text-white text-base md:text-xs rounded-sm p-2 focus:border-[#FFEA05] focus:outline-none"
                          value={formData.maxLoadWeight}
                          onChange={(e) => setFormData({...formData, maxLoadWeight: e.target.value})}
                        />
@@ -420,7 +431,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                     <div>
                        <label className="text-[9px] font-bold text-gray-300 uppercase tracking-wider block mb-1">Qty (Per Order)</label>
                        <select 
-                          className="w-full bg-[#111] border border-gray-600 text-white text-xs rounded-sm p-1.5 focus:border-[#FFEA05] focus:outline-none"
+                          className="w-full bg-[#111] border border-gray-600 text-white text-base md:text-xs rounded-sm p-1.5 focus:border-[#FFEA05] focus:outline-none"
                           value={formData.quantity}
                           onChange={(e) => setFormData({...formData, quantity: e.target.value})}
                        >
@@ -432,7 +443,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                     <div>
                        <label className="text-[9px] font-bold text-gray-300 uppercase tracking-wider block mb-1">Frequency (Monthly)</label>
                        <select 
-                          className="w-full bg-[#111] border border-gray-600 text-white text-xs rounded-sm p-1.5 focus:border-[#FFEA05] focus:outline-none"
+                          className="w-full bg-[#111] border border-gray-600 text-white text-base md:text-xs rounded-sm p-1.5 focus:border-[#FFEA05] focus:outline-none"
                           value={formData.frequency}
                           onChange={(e) => setFormData({...formData, frequency: e.target.value})}
                        >
@@ -475,7 +486,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                                   placeholder={field.charAt(0).toUpperCase() + field.slice(1)} 
                                   value={formData.contact[field as keyof typeof formData.contact]}
                                   onChange={(e) => setFormData({...formData, contact: {...formData.contact, [field]: e.target.value}})}
-                                  className="w-full bg-[#0A0A0A] border border-gray-700 text-white text-sm rounded-sm p-3 focus:border-[#FFEA05] focus:shadow-[0_0_20px_rgba(255,234,5,0.15)] focus:outline-none placeholder:text-gray-600 transition-all" 
+                                  className="w-full bg-[#0A0A0A] border border-gray-700 text-white text-base md:text-sm rounded-sm p-3 focus:border-[#FFEA05] focus:shadow-[0_0_20px_rgba(255,234,5,0.15)] focus:outline-none placeholder:text-gray-600 transition-all" 
                                 />
                                 {formData.contact[field as keyof typeof formData.contact].length > 2 && (
                                     <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FFEA05] animate-in zoom-in spin-in-90 duration-300">
@@ -634,6 +645,7 @@ interface NavbarProps {
 const Navbar = ({ onRequestQuote }: NavbarProps) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isServicesOpen, setIsServicesOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -642,6 +654,16 @@ const Navbar = ({ onRequestQuote }: NavbarProps) => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Pro Max: Lock Scroll on Mobile Menu Open
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [isMobileMenuOpen]);
 
     // Pro Max: Uppercase styling for industrial feel
     const navLinkStyle = "text-xs font-black uppercase tracking-[0.2em] text-gray-400 hover:text-white transition-all relative group h-full flex items-center";
@@ -657,78 +679,121 @@ const Navbar = ({ onRequestQuote }: NavbarProps) => {
     ];
 
     return (
-        <nav className={`fixed top-4 left-4 right-4 z-50 transition-all duration-500 ${isScrolled ? 'top-2' : 'top-4'}`}>
-            <div className={`max-w-7xl mx-auto px-6 h-20 flex justify-between items-center rounded-sm transition-all duration-300 border backdrop-blur-md shadow-2xl ${isScrolled ? 'bg-black/80 border-white/20' : 'bg-white/5 border-white/10'}`}>
-                {/* LOGO SECTION - PRO MAX UPGRADE */}
-                <div className="flex items-center gap-5 group cursor-pointer">
-                    {/* "SPP" Industrial Monogram */}
-                    <div className="relative w-12 h-12 bg-[#FFEA05] rounded-sm flex items-center justify-center shadow-[0_0_20px_rgba(255,234,5,0.15)] group-hover:shadow-[0_0_35px_rgba(255,234,5,0.4)] transition-all duration-500 border border-[#FFEA05]">
-                         <span className="font-black text-black text-xl tracking-tighter transform group-hover:scale-110 transition-transform duration-300">SPP</span>
-                    </div>
-                    
-                    <div className="flex flex-col">
-                        <span className="font-black text-xl tracking-[0.15em] text-white uppercase group-hover:text-[#FFEA05] transition-colors leading-none mb-1">Sun Pac Pallets</span>
-                        <span className="text-[9px] font-black tracking-[0.35em] text-[#FFEA05] uppercase opacity-90 leading-none pl-[1px]">Pallet Engineering</span>
-                    </div>
-                </div>
-                
-                {/* MENU SECTION - PRO MAX UPGRADE */}
-                <div className="hidden lg:flex items-center gap-12 h-full">
-                    <a href="#" className={navLinkStyle}>
-                        Home
-                        <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFEA05] transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                    
-                    {/* SERVICES DROPDOWN */}
-                    <div 
-                        className="relative group h-full flex items-center"
-                        onMouseEnter={() => setIsServicesOpen(true)}
-                        onMouseLeave={() => setIsServicesOpen(false)}
-                    >
-                        <button className={`${navLinkStyle} ${isServicesOpen ? 'text-white' : ''}`}>
-                            Services <ChevronDown size={14} className={`ml-1.5 transition-transform duration-300 ${isServicesOpen ? 'rotate-180 text-[#FFEA05]' : 'text-gray-600'}`} />
-                        </button>
+        <>
+            <nav className={`fixed top-4 left-4 right-4 z-50 transition-all duration-500 ${isScrolled ? 'top-2' : 'top-4'}`}>
+                <div className={`max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex justify-between items-center rounded-sm transition-all duration-300 border backdrop-blur-md shadow-2xl ${isScrolled ? 'bg-black/80 border-white/20' : 'bg-white/5 border-white/10'}`}>
+                    {/* LOGO SECTION - PRO MAX UPGRADE */}
+                    <div className="flex items-center gap-3 md:gap-5 group cursor-pointer relative z-50">
+                        {/* "SPP" Industrial Monogram */}
+                        <div className="relative w-10 h-10 md:w-12 md:h-12 bg-[#FFEA05] rounded-sm flex items-center justify-center shadow-[0_0_20px_rgba(255,234,5,0.15)] group-hover:shadow-[0_0_35px_rgba(255,234,5,0.4)] transition-all duration-500 border border-[#FFEA05]">
+                             <span className="font-black text-black text-lg md:text-xl tracking-tighter transform group-hover:scale-110 transition-transform duration-300">SPP</span>
+                        </div>
                         
-                        {/* DROPDOWN PANEL */}
-                        <div className={`absolute top-full left-0 w-56 pt-2 transition-all duration-300 ${isServicesOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
-                            <div className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-sm overflow-hidden shadow-2xl ring-1 ring-white/5">
-                                {services.map((item, idx) => (
-                                    <a 
-                                        key={idx} 
-                                        href={item.href} 
-                                        className="block px-6 py-4 text-gray-400 hover:text-black hover:bg-[#FFEA05] transition-all border-b border-white/5 last:border-0 font-bold"
-                                    >
-                                        {item.name}
-                                    </a>
-                                ))}
-                            </div>
+                        <div className="flex flex-col">
+                            <span className="font-black text-sm md:text-xl tracking-[0.15em] text-white uppercase group-hover:text-[#FFEA05] transition-colors leading-none mb-1">Sun Pac Pallets</span>
+                            <span className="text-[8px] md:text-[9px] font-black tracking-[0.35em] text-[#FFEA05] uppercase opacity-90 leading-none pl-[1px] hidden md:block">Pallet Engineering</span>
                         </div>
                     </div>
+                    
+                    {/* DESKTOP MENU */}
+                    <div className="hidden lg:flex items-center gap-12 h-full">
+                        <a href="#" className={navLinkStyle}>
+                            Home
+                            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFEA05] transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                        
+                        {/* SERVICES DROPDOWN */}
+                        <div 
+                            className="relative group h-full flex items-center"
+                            onMouseEnter={() => setIsServicesOpen(true)}
+                            onMouseLeave={() => setIsServicesOpen(false)}
+                        >
+                            <button className={`${navLinkStyle} ${isServicesOpen ? 'text-white' : ''}`}>
+                                Services <ChevronDown size={14} className={`ml-1.5 transition-transform duration-300 ${isServicesOpen ? 'rotate-180 text-[#FFEA05]' : 'text-gray-600'}`} />
+                            </button>
+                            
+                            {/* DROPDOWN PANEL */}
+                            <div className={`absolute top-full left-0 w-56 pt-2 transition-all duration-300 ${isServicesOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+                                <div className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-sm overflow-hidden shadow-2xl ring-1 ring-white/5">
+                                    {services.map((item, idx) => (
+                                        <a 
+                                            key={idx} 
+                                            href={item.href} 
+                                            className="block px-6 py-4 text-gray-400 hover:text-black hover:bg-[#FFEA05] transition-all border-b border-white/5 last:border-0 font-bold"
+                                        >
+                                            {item.name}
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
 
-                    <a href="#" className={navLinkStyle}>
-                        Contact Us
-                        <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFEA05] transition-all duration-300 group-hover:w-full"></span>
-                    </a>
+                        <a href="#" className={navLinkStyle}>
+                            Contact Us
+                            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFEA05] transition-all duration-300 group-hover:w-full"></span>
+                        </a>
 
+                        <button 
+                            onClick={onRequestQuote}
+                            className={`bg-[#FFEA05] text-black px-8 py-3 rounded-sm font-black text-xs uppercase tracking-[0.15em] hover:bg-white hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(255,234,5,0.3)] ${scanAnimation}`}
+                        >
+                            Request Quote
+                        </button>
+                    </div>
+
+                    {/* MOBILE MENU TOGGLE */}
                     <button 
-                        onClick={onRequestQuote}
-                        className={`bg-[#FFEA05] text-black px-8 py-3 rounded-sm font-black text-xs uppercase tracking-[0.15em] hover:bg-white hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(255,234,5,0.3)] ${scanAnimation}`}
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className="lg:hidden text-white p-2 relative z-50 hover:text-[#FFEA05] transition-colors"
                     >
-                        Request Quote
+                        {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
                     </button>
                 </div>
+            </nav>
 
-                {/* MOBILE MENU ICON */}
-                <button className="lg:hidden text-white p-2">
-                    <Menu size={24} />
-                </button>
-            </div>
-        </nav>
+            {/* MOBILE OBSIDIAN GLASS OVERLAY */}
+            {isMobileMenuOpen && (
+                <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-2xl animate-in slide-in-from-top-10 fade-in duration-300 flex flex-col pt-32 px-6">
+                    {/* MENU LINKS */}
+                    <div className="flex flex-col gap-6 items-center">
+                        <a href="#" className="text-3xl font-black uppercase tracking-tight text-white hover:text-[#FFEA05] transition-colors">Home</a>
+                        <div className="w-12 h-[1px] bg-white/10"></div>
+                        
+                        <div className="flex flex-col gap-4 w-full items-center">
+                            <span className="text-sm font-bold text-[#FFEA05] uppercase tracking-widest">Services</span>
+                             {services.map((item, idx) => (
+                                <a key={idx} href={item.href} className="text-xl font-bold text-gray-400 hover:text-white transition-colors">{item.name}</a>
+                            ))}
+                        </div>
+                        
+                        <div className="w-12 h-[1px] bg-white/10 my-2"></div>
+                        <a href="#" className="text-3xl font-black uppercase tracking-tight text-white hover:text-[#FFEA05] transition-colors">Contact</a>
+                    </div>
+                    
+                    {/* MOBILE CALL TO ACTION */}
+                    <div className="mt-auto mb-12 w-full space-y-4">
+                        <button 
+                            onClick={() => {
+                                setIsMobileMenuOpen(false);
+                                onRequestQuote();
+                            }}
+                            className="w-full bg-[#FFEA05] text-black py-5 rounded-sm font-black text-sm uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(255,234,5,0.2)]"
+                        >
+                            Start Configuration
+                        </button>
+                         <div className="flex justify-center gap-8 text-gray-500">
+                             <a href="tel:6479513080" className="flex items-center gap-2 text-xs uppercase tracking-widest hover:text-white"><Phone size={14}/> Sales</a>
+                             <a href="mailto:sales@sunpacpallets.com" className="flex items-center gap-2 text-xs uppercase tracking-widest hover:text-white"><CheckCircle2 size={14}/> Support</a>
+                         </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 
 interface HeroProps {
-    calculatorRef: React.RefObject<{ start: (isQualified: boolean) => void }>;
+    calculatorRef: React.RefObject<{ start: (isQualified: boolean) => void } | null>;
 }
 
 const Hero = ({ calculatorRef }: HeroProps) => {
@@ -745,12 +810,13 @@ const Hero = ({ calculatorRef }: HeroProps) => {
     };
 
     return (
-        <section className="relative pt-32 pb-24 px-6 overflow-hidden min-h-[90vh] flex items-center">
+
+        <section className="relative pt-32 pb-16 md:pb-24 px-4 md:px-6 overflow-hidden min-h-[90vh] flex items-center">
              {/* Background Effects */}
              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FFEA05]/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10 w-full">
-                 <div className="space-y-8 relative z-20">
+             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 md:gap-16 items-center relative z-10 w-full">
+                 <div className="space-y-6 md:space-y-8 relative z-20">
                      <div className="inline-flex items-center gap-2 border border-[#FFEA05]/30 bg-[#FFEA05]/10 text-[#FFEA05] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(255,234,5,0.1)] backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700 animate-[pulse-shadow_3s_infinite]">
                          <span className="relative flex h-2 w-2">
                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFEA05] opacity-75"></span>
@@ -759,7 +825,7 @@ const Hero = ({ calculatorRef }: HeroProps) => {
                          Now Accepting New Customers For 2026
                      </div>
                      
-                     <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.85] tracking-tight animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200 fill-mode-both">
+                     <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] md:leading-[0.85] tracking-tight animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200 fill-mode-both">
                          <span className="font-serif italic font-light opacity-80 block mb-2 text-gray-300 transform -translate-x-1">Precision</span>
                          <span className="font-sans uppercase">Wood <br/> Packaging.</span>
                      </h1>
@@ -821,120 +887,7 @@ const Hero = ({ calculatorRef }: HeroProps) => {
     );
 };
 
-const ProcessTimeline = () => {
-    // Phase 2: "The Machine Fleet" - Immersive Engineering Experience
-    const steps = [
-        { 
-            id: "01", 
-            title: "Sourcing", 
-            subtitle: "Premium SPF Lumber",
-            desc: "Sourced directly from certified Canadian mills. 100% New Lumber. Zero Scrap.",
-            overlay: "GRADE: PREMIUM SPF // ORIGIN: CANADA",
-            icon: <Trees size={24} />,
-            bg: "bg-[url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center"
-        },
-        { 
-            id: "02", 
-            title: "Precision Cutting", 
-            subtitle: "Automated Fleet",
-            desc: "High-volume dimensional accuracy. Calibrated for millimetre-perfect cuts.",
-            specs: ["Go Fast 2NX Notcher", "Wood-Mizer HR120 Resaw", "Precision Trim Saws"],
-            icon: <Scissors size={24} />,
-            bg: "bg-[url('/images/precision-saw-man.png')] bg-cover bg-center"
-        },
-        { 
-            id: "03", 
-            title: "Assembly", 
-            subtitle: "Automated Nailing Lines",
-            desc: "High-speed assembly using pre-sterilized heat-treated lumber (ISPM-15 compliant).",
-            overlay: "FASTENERS: PNEUMATIC // CERT: ISPM-15",
-            icon: <Hammer size={24} />,
-            bg: "bg-[url('https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center"
-        },
-        { 
-            id: "04", 
-            title: "Logistics", 
-            subtitle: "GTA / Canada & USA Wide",
-            desc: "Rapid deployment fleet capable of comprehensive North American supply.",
-            overlay: "ZONE: NORTH AMERICA // STATUS: ACTIVE",
-            icon: <Truck size={24} />,
-            bg: "bg-[url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center"
-        },
-    ];
 
-    return (
-        <section className="py-24 bg-[#0a0a0a] relative overflow-hidden">
-            {/* Background Tech Grid */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] pointer-events-none"></div>
-            
-            <div className="max-w-7xl mx-auto px-6 relative z-10">
-                <div className="mb-16 md:flex justify-between items-end border-b border-white/10 pb-8">
-                    <div>
-                        <span className="text-[#FFEA05] font-mono text-xs uppercase tracking-[0.2em] mb-3 block">The Machine Fleet</span>
-                        <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight">ENGINEERED <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-500 to-gray-700">FOR PRECISION</span></h2>
-                    </div>
-                    <div className="hidden md:block text-right">
-                         <div className="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Total Capacity</div>
-                         <div className="text-2xl font-black text-white">THOUSANDS OF UNITS / DAY</div>
-                    </div>
-                </div>
-
-                <div className="grid md:grid-cols-4 gap-6">
-                    {steps.map((step, index) => (
-                        <div key={step.id} className={`group relative h-[400px] border border-white/10 rounded-sm overflow-hidden bg-[#151515] transition-all duration-500 hover:border-[#FFEA05] hover:shadow-[0_0_50px_rgba(255,234,5,0.1)] ${index % 2 === 0 ? 'md:translate-y-0' : 'md:translate-y-12'}`}>
-                            
-                            {/* Image Background (Revealed on Hover) */}
-                            <div className={`absolute inset-0 ${step.bg} opacity-20 group-hover:opacity-100 transition-opacity duration-700 grayscale group-hover:grayscale-0 transform group-hover:scale-110 ease-out`}></div>
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90 group-hover:via-black/20 transition-all duration-500"></div>
-
-                            {/* Content */}
-                            <div className="absolute inset-0 p-6 flex flex-col justify-between">
-                                {/* Header */}
-                                <div className="flex justify-between items-start">
-                                    <span className="font-mono text-4xl font-black text-white/10 group-hover:text-[#FFEA05] transition-colors duration-300">{step.id}</span>
-                                    <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 group-hover:text-black group-hover:bg-[#FFEA05] group-hover:border-[#FFEA05] transition-all duration-300">
-                                        {step.icon}
-                                    </div>
-                                </div>
-
-                                {/* Hover Specs Overlay */}
-                                {step.specs && (
-                                    <div className="absolute top-20 right-6 text-right opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 delay-100">
-                                        {step.specs.map((spec, i) => (
-                                            <div key={i} className="bg-black/80 border-r-2 border-[#FFEA05] px-3 py-1 mb-2 text-[9px] font-mono text-[#FFEA05] uppercase tracking-wider backdrop-blur-md">
-                                                {spec}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Hover Info Overlay */}
-                                {step.overlay && (
-                                    <div className="absolute top-20 left-6 opacity-0 group-hover:opacity-100 transition-all duration-500 transform -translate-x-4 group-hover:translate-x-0 delay-100">
-                                        <div className="bg-black/80 border-l-2 border-[#FFEA05] px-3 py-1 text-[9px] font-mono text-[#FFEA05] uppercase tracking-wider backdrop-blur-md">
-                                            {step.overlay}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Bottom Info */}
-                                <div className="relative z-10 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                                    <div className="h-0.5 w-0 bg-[#FFEA05] mb-4 group-hover:w-full transition-all duration-700 delay-100"></div>
-                                    <h3 className="text-xl font-bold text-white mb-1 uppercase group-hover:text-[#FFEA05] transition-colors">{step.title}</h3>
-                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">{step.subtitle}</p>
-                                    <p className="text-gray-400 text-xs leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                                        {step.desc}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-
-    );
-};
 
 const EfficiencySection = () => {
     const [rotation, setRotation] = useState({ x: 20, y: -30 });
@@ -961,6 +914,30 @@ const EfficiencySection = () => {
 
     const handleMouseUp = () => {
         setIsDragging(false);
+    };
+
+    const handleTouchStart = (e: any) => {
+        setIsDragging(true);
+        if (e.touches && e.touches[0]) {
+             const touch = e.touches[0];
+             lastMousePos.current = { x: touch.clientX, y: touch.clientY };
+        }
+    };
+
+    const handleTouchMove = (e: any) => {
+        if (!isDragging) return;
+        if (e.touches && e.touches[0]) {
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - lastMousePos.current.x;
+            const deltaY = touch.clientY - lastMousePos.current.y;
+            
+            setRotation(prev => ({
+                x: Math.max(-90, Math.min(90, prev.x - deltaY * 0.5)), 
+                y: prev.y + deltaX * 0.5
+            }));
+            
+            lastMousePos.current = { x: touch.clientX, y: touch.clientY };
+        }
     };
 
     return (
@@ -1013,6 +990,9 @@ const EfficiencySection = () => {
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseUp}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleMouseUp}
                 >
                     {/* Grid Overlay */}
                     <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,148,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,148,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
@@ -1192,7 +1172,7 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
                                 )}
                             </div>
 
-                            <textarea rows={3} className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors resize-none rounded-none placeholder-gray-600 text-sm" placeholder="MESSAGE DETAILS..."></textarea>
+                            <textarea rows={3} className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors resize-none rounded-none placeholder-gray-600 text-base md:text-sm" placeholder="MESSAGE DETAILS..."></textarea>
 
                             {/* Compact File Upload */}
                             <div className="border border-dashed border-white/10 bg-white/5 py-4 text-center hover:border-[#FFEA05] hover:bg-[#FFEA05]/5 transition-all cursor-pointer">
@@ -1212,7 +1192,7 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
                 <div className="lg:col-span-7 flex flex-col h-full justify-between">
                     
                     {/* Top Section: 2x2 Data Grid */}
-                    <div className="grid md:grid-cols-2 gap-x-12 gap-y-10 mb-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 mb-12">
                         
                         {/* 1. Production Site */}
                         <div>
