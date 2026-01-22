@@ -29,8 +29,7 @@ import {
   Package,
   Scale,
   ThermometerSun,
-  Trees,
-  ChevronDown
+  Trees
 } from "lucide-react";
 
 // --- MOCK THEME WRAPPER (DARK INDUSTRIAL) ---
@@ -44,10 +43,7 @@ const DarkIndustrialTheme = ({ children }: { children: React.ReactNode }) => {
           "--color-surface": "#202020",
           "--color-surface-dark": "#151515",
           "--color-text-muted": "#9CA3AF",
-          "--font-serif": "'Playfair Display', serif",
-          "--font-sans": "'Inter', sans-serif",
-          backgroundColor: "#111111",
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E")`,
+          backgroundColor: "#111111", 
         } as React.CSSProperties
       }
     >
@@ -56,15 +52,11 @@ const DarkIndustrialTheme = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-
-
 // --- CALCULATOR COMPONENT (Ported & Styled) ---
-const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbedded?: boolean }, ref) => {
+const PalletQuoteCalculator = ({ isEmbedded = false }: { isEmbedded?: boolean }) => {
   const [step, setStep] = useState(1);
   const [started, setStarted] = useState(false); // NEW: Controls Idle vs Wizard state
   const totalSteps = 3;
-
-
   const [formData, setFormData] = useState({
     size: 'Standard 48x40',
     type: 'Standard GMA',
@@ -88,22 +80,6 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
     maxLoadWeight: '',
     includeAudit: true
   });
-
-  // Expose start function to parent via ref
-  React.useImperativeHandle(ref, () => ({
-    start: (isQualified: boolean) => {
-      if (isQualified) {
-        setFormData(prev => ({ 
-            ...prev, 
-            quantity: '500+', 
-            includeAudit: true 
-        }));
-        setStep(2); // Jump to step 2 (Load) where quantity is shown
-      }
-      setStarted(true);
-    }
-  }));
-
 
   const [showAdvancedSpecs, setShowAdvancedSpecs] = useState(false);
 
@@ -150,51 +126,41 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
   // IDLE STATE (Landing View)
   if (!started) {
     return (
-      <div className="w-full h-full flex items-center justify-center p-4">
-        <div 
-            onClick={() => setStarted(true)}
-            className={`relative w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-sm transition-all duration-300 ease-out group bg-clip-padding cursor-pointer ${isEmbedded ? 'bg-[#0A0A0A]' : ''} p-12`}
-            style={{
-                boxShadow: isEmbedded 
-                    ? `0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1)` 
-                    : 'none'
-            }}
-        >
-            {/* HOVER SHOCKWAVE: Massive Shadow & Flash */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-sm pointer-events-none z-20"
-                 style={{ boxShadow: '0 0 100px rgba(255, 234, 5, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.2)' }}></div>
-            
-            {/* White Flash on Hover */}
-            <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:animate-[flash_0.5s_ease-out] pointer-events-none z-30"></div>
-
-            {/* Breathing Gradient Border - TURBO on Hover (Relaxed to 2s) */}
-            {isEmbedded && (
-                <div className="absolute inset-0 pointer-events-none rounded-sm overflow-hidden p-[3px]">
-                    <div className="absolute inset-[-50%] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,transparent_300deg,#FFEA05_330deg,transparent_360deg)] animate-[spin_4s_linear_infinite] group-hover:animate-[spin_2s_linear_infinite] opacity-70 group-hover:opacity-100 group-hover:brightness-150 transition-all duration-300"></div>
-                    {/* Cinematic Background Image Container */}
-                    <div className="absolute inset-[3px] rounded-[1px] overflow-hidden bg-[#0A0A0A]">
-                        <div 
-                            className="w-full h-full animate-[ken-burns_12s_ease-in-out_infinite] group-hover:scale-110 transition-transform duration-700"
-                            style={{
-                                backgroundImage: "url('/images/obsidian-pallet.jpg')",
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                            }}
-                        ></div>
-                    </div>
+      <div 
+        onClick={() => setStarted(true)}
+        className={`relative w-full h-full flex flex-col items-center justify-center p-8 overflow-hidden rounded-sm transition-all duration-500 group bg-clip-padding cursor-pointer ${isEmbedded ? 'bg-[#0A0A0A]' : ''}`}
+        style={{
+             animation: 'pulse-shadow 4s infinite ease-in-out'
+        }}
+      >
+        {/* Breathing Gradient Border */}
+        {isEmbedded && (
+            <div className="absolute inset-0 pointer-events-none rounded-sm overflow-hidden p-[3px]">
+                <div className="absolute inset-[-50%] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,transparent_300deg,#FFEA05_330deg,transparent_360deg)] animate-[spin_4s_linear_infinite] opacity-70"></div>
+                {/* Cinematic Background Image Container */}
+                <div className="absolute inset-[3px] rounded-[1px] overflow-hidden bg-[#0A0A0A]">
+                    <div 
+                        className="w-full h-full animate-[ken-burns_20s_ease-in-out_infinite]"
+                        style={{
+                            backgroundImage: "url('/images/obsidian-pallet.jpg')",
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                        }}
+                    ></div>
                 </div>
-            )}
-
-            {/* Scanner Effect - High Frequency on Hover */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-0 left-0 w-[50%] h-full bg-gradient-to-r from-transparent via-white/5 group-hover:via-white/20 to-transparent skew-x-12 animate-[shimmer-slow_6s_infinite_linear] group-hover:animate-[shimmer_2s_infinite]"></div>
             </div>
+        )}
 
-            {/* Dark Overlay - Recedes on Hover */}
-            <div className="absolute inset-[3px] bg-black/60 backdrop-blur-[2px] transition-all duration-300 group-hover:bg-black/30 z-0 rounded-[1px]"></div>
+        {/* Scanner Effect */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+             <div className="absolute top-0 left-0 w-[50%] h-full bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 animate-[shimmer-slow_6s_infinite_linear]"></div>
+        </div>
+
+        {/* Dark Overlay - Now inset to match the border padding */}
+        <div className="absolute inset-[3px] bg-black/60 backdrop-blur-[2px] transition-all duration-500 group-hover:bg-black/50 z-0 rounded-[1px]"></div>
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center text-center gap-10">
+        <div className="relative z-10 flex flex-col items-center text-center gap-6">
            {/* Pulsing Icon */}
            <button 
              className="w-24 h-24 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl relative cursor-pointer hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-[#ffea05] focus:ring-offset-2 focus:ring-offset-black ring-4 ring-[#ffea05]/20 animate-pulse" 
@@ -223,9 +189,10 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
            </button>
         </div>
       </div>
-    </div>
     );
   }
+
+  // WIZARD STATE
 
   // WIZARD STATE
   return (
@@ -442,7 +409,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                      </div>
                  )}
              </div>
-           )}
+          )}
 
           {/* STEP 3: CONTACT */}
           {step === 3 && (
@@ -495,8 +462,8 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                    </div>
                 </div>
              </div>
-           )}
-        </div>
+          )}
+       </div>
 
        {/* Footer */}
        <div className="p-3 bg-[#000000]/60 backdrop-blur-md border-t border-white/5 flex gap-2 relative z-10">
@@ -515,268 +482,76 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
              </span>
           </button>
        </div>
+       
+       </div>
+       
+       {/* Background Grid for Tech Feel */}
+       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" 
+            style={{ backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+       </div>
     </div>
-  </div>
   );
-});
-
-PalletQuoteCalculator.displayName = 'PalletQuoteCalculator';
-const AuditModal = ({ isOpen, onClose, onQualify }: { isOpen: boolean, onClose: () => void, onQualify: (qualified: boolean) => void }) => {
-    if (!isOpen) return null;
-
-    const valueProps = [
-        { 
-            title: "Cost Reduction", 
-            desc: "Our engineering team identifies over-spec'd designs, typically reducing lumber volume by 12-18% while maintaining safety factors.", 
-            icon: <Scale className="text-[#FFEA05]" size={32} />,
-            size: "col-span-2 row-span-1"
-        },
-        { 
-            title: "Sustainability", 
-            desc: "Certified SFI/PEFC lumber sourcing and reduced wood waste metrics for your ESG reporting.", 
-            icon: <Trees className="text-[#FFEA05]" size={32} />,
-            size: "col-span-1 row-span-1 bg-[#222]/30"
-        },
-        { 
-            title: "Damage Control", 
-            desc: "Physics-based load path analysis to prevent product damage during high-intensity logistics.", 
-            icon: <ShieldCheck className="text-[#FFEA05]" size={32} />,
-            size: "col-span-1 row-span-1 bg-[#222]/30"
-        },
-        { 
-            title: "The Question", 
-            desc: "Do you ship 500+ pallets per month?", 
-            icon: <Package className="text-[#FFEA05]" size={32} />,
-            size: "col-span-2 row-span-1 bg-gradient-to-br from-[#FFEA05]/10 to-transparent border-[#FFEA05]/30"
-        }
-    ];
-
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="relative w-full max-w-4xl bg-[#111] border border-white/10 rounded-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
-                {/* Header */}
-                <div className="p-4 md:p-6 border-b border-white/5 flex justify-between items-start bg-[#151515] shrink-0">
-                    <div>
-                        <h2 className="text-xl md:text-2xl font-black font-sans uppercase tracking-tight text-white mb-1">Free Design Audit</h2>
-                        <p className="text-gray-400 font-medium text-xs md:text-sm max-w-lg">Optimize your supply chain with engineering-grade pallet specifications.</p>
-                    </div>
-                    <button onClick={onClose} className="text-gray-500 hover:text-white transition-all transform hover:rotate-90">
-                        <X size={20} />
-                    </button>
-                </div>
-
-                {/* Bento Grid */}
-                <div className="p-4 md:p-6 grid grid-cols-3 grid-rows-2 gap-3 md:gap-4 overflow-y-auto">
-                    {valueProps.map((prop, idx) => (
-                        <div key={idx} className={`p-4 md:p-5 border border-white/5 rounded-sm flex flex-col gap-3 group hover:border-[#FFEA05]/30 transition-all ${prop.size} bg-[#181818]/50`}>
-                            <div className="w-10 h-10 rounded-sm bg-white/5 flex items-center justify-center group-hover:bg-[#FFEA05]/10 transition-all shrink-0">
-                                {React.cloneElement(prop.icon as React.ReactElement, { size: 24 })}
-                            </div>
-                            <div>
-                                <h3 className="text-white font-bold text-sm md:text-base mb-1 uppercase tracking-wide group-hover:text-[#FFEA05] transition-colors">{prop.title}</h3>
-                                <p className="text-gray-500 text-[10px] md:text-xs leading-relaxed">{prop.desc}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Footer / Actions */}
-                <div className="p-4 md:p-6 bg-[#151515] border-t border-white/5 flex flex-col md:flex-row gap-4 items-center justify-between shrink-0">
-                    <div className="text-center md:text-left">
-                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] block mb-1">Select Your Path</span>
-                        <p className="text-[10px] text-gray-400">Qualifying customers receive a full CAD analysis & breakage report.</p>
-                    </div>
-                    <div className="flex gap-3 w-full md:w-auto">
-                        <button 
-                            onClick={() => onQualify(false)}
-                            className="flex-1 md:flex-none px-6 py-3 border border-white/10 text-white font-bold text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all"
-                        >
-                            No, Standard Quote
-                        </button>
-                        <button 
-                            onClick={() => onQualify(true)}
-                            className="flex-1 md:flex-none px-6 py-3 bg-[#FFEA05] text-black font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_20px_rgba(255,234,5,0.2)]"
-                        >
-                            Yes, I Qualify
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
 };
 
 // --- REST OF THE PAGE ---
 
 const Navbar = () => {
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [isServicesOpen, setIsServicesOpen] = useState(false);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    const services = [
-        { name: "New Pallets", href: "#" },
-        { name: "Custom Pallets", href: "#" },
-        { name: "Heat Treated Pallets", href: "#" },
-        { name: "Wood Cutting", href: "#" }
-    ];
-
     return (
-        <nav className={`fixed top-4 left-4 right-4 z-50 transition-all duration-500 ${isScrolled ? 'top-2' : 'top-4'}`}>
-            <div className={`max-w-7xl mx-auto px-6 h-20 flex justify-between items-center rounded-sm transition-all duration-300 border backdrop-blur-md shadow-2xl ${isScrolled ? 'bg-black/80 border-white/20' : 'bg-white/5 border-white/10'}`}>
-                {/* LOGO SECTION */}
-                <div className="flex items-center gap-4 group cursor-pointer">
-                    <div className="w-12 h-12 bg-[#FFEA05] rounded-sm flex items-center justify-center shadow-[0_0_20px_rgba(255,234,5,0.2)] group-hover:shadow-[0_0_30px_rgba(255,234,5,0.4)] transition-all duration-300">
-                        <span className="text-black font-black text-xl tracking-tighter">SPP</span>
+        <nav className="fixed top-0 w-full z-50 bg-[#111]/90 backdrop-blur-md border-b border-white/10">
+            <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                     {/* Placeholder Logo */}
+                    <div className="w-10 h-10 bg-[#FFEA05] rounded-sm flex items-center justify-center">
+                        <Box className="text-black stroke-[2.5px]" />
                     </div>
-                    <div className="flex flex-col -space-y-1">
-                        <span className="font-bold text-xl tracking-tight text-white uppercase group-hover:text-[#FFEA05] transition-colors">Sun Pac Pallets</span>
-                        <span className="text-[10px] font-bold tracking-[0.2em] text-[#FFEA05] uppercase opacity-80">Pallet Engineering</span>
-                    </div>
+                    <span className="font-bold text-xl tracking-tighter text-white">SUN PAC<span className="text-[#FFEA05]">.</span></span>
                 </div>
                 
-                {/* MENU SECTION */}
-                <div className="hidden lg:flex items-center gap-10 text-[11px] font-black uppercase tracking-[0.15em]">
-                    <a href="#" className="text-gray-400 hover:text-white transition-all relative group">
-                        Home
-                        <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#FFEA05] transition-all group-hover:w-full"></span>
-                    </a>
-                    
-                    {/* SERVICES DROPDOWN */}
-                    <div 
-                        className="relative group py-2"
-                        onMouseEnter={() => setIsServicesOpen(true)}
-                        onMouseLeave={() => setIsServicesOpen(false)}
-                    >
-                        <button className={`flex items-center gap-1.5 transition-all ${isServicesOpen ? 'text-white' : 'text-gray-400 hover:text-white'}`}>
-                            Services <ChevronDown size={14} className={`transition-transform duration-300 ${isServicesOpen ? 'rotate-180 text-[#FFEA05]' : ''}`} />
-                        </button>
-                        
-                        {/* DROPDOWN PANEL */}
-                        <div className={`absolute top-full left-0 w-56 pt-2 transition-all duration-300 ${isServicesOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
-                            <div className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-sm overflow-hidden shadow-2xl ring-1 ring-white/5">
-                                {services.map((item, idx) => (
-                                    <a 
-                                        key={idx} 
-                                        href={item.href} 
-                                        className="block px-6 py-4 text-gray-400 hover:text-black hover:bg-[#FFEA05] transition-all border-b border-white/5 last:border-0 font-bold"
-                                    >
-                                        {item.name}
-                                    </a>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <a href="#" className="text-gray-400 hover:text-white transition-all relative group">
-                        Contact Us
-                        <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#FFEA05] transition-all group-hover:w-full"></span>
-                    </a>
-
-                    {/* CTA BUTTON */}
-                    <button className={`bg-[#FFEA05] text-black px-8 py-3 rounded-sm font-black transition-all shadow-[0_0_20px_rgba(255,234,5,0.2)] hover:shadow-[0_0_40px_rgba(255,234,5,0.4)] hover:bg-white hover:scale-105 active:scale-95 ${isScrolled ? 'opacity-100 scale-100' : 'opacity-80 scale-95'}`}>
-                        Request Quote
+                <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+                    <a href="#" className="hover:text-[#FFEA05] transition-colors">Capabilities</a>
+                    <a href="#" className="hover:text-[#FFEA05] transition-colors">Sustainability</a>
+                    <a href="#" className="hover:text-[#FFEA05] transition-colors">Tracking</a>
+                    <button className="bg-[#FFEA05] text-black px-6 py-2 rounded-sm font-bold text-xs uppercase tracking-wider hover:bg-white transition-all">
+                        Get Quote
                     </button>
                 </div>
-
-                {/* MOBILE MENU ICON */}
-                <button className="lg:hidden text-white p-2">
-                    <Menu size={24} />
-                </button>
             </div>
         </nav>
     );
 };
 
 const Hero = () => {
-    const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
-    const calculatorRef = useRef<{ start: (isQualified: boolean) => void }>(null);
-
-    const handleQualify = (qualified: boolean) => {
-        setIsAuditModalOpen(false);
-        if (calculatorRef.current) {
-            calculatorRef.current.start(qualified);
-        }
-        // Smooth scroll to calculator on mobile if needed
-        document.getElementById('quote-calculator')?.scrollIntoView({ behavior: 'smooth' });
-    };
-
     return (
         <section className="relative pt-32 pb-24 px-6 overflow-hidden min-h-[90vh] flex items-center">
              {/* Background Effects */}
              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FFEA05]/5 rounded-full blur-[120px] pointer-events-none"></div>
 
              <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10 w-full">
-                 <div className="space-y-8 relative z-20">
-                     <div className="inline-flex items-center gap-2 border border-[#FFEA05]/30 bg-[#FFEA05]/10 text-[#FFEA05] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(255,234,5,0.1)] backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
+                 <div className="space-y-8">
+                     <div className="inline-flex items-center gap-2 border border-[#FFEA05]/30 bg-[#FFEA05]/5 text-[#FFEA05] px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest">
                          <span className="relative flex h-2 w-2">
-                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFEA05] opacity-75"></span>
                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FFEA05]"></span>
                          </span>
-                         Now Accepting New Customers For 2026
+                         System Online
                      </div>
                      
-                     <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.85] tracking-tight animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200 fill-mode-both">
-                         <span className="font-serif italic font-light opacity-80 block mb-2 text-gray-300 transform -translate-x-1">Precision</span>
-                         <span className="font-sans uppercase">Wood <br/> Packaging.</span>
+                     <h1 className="text-5xl md:text-7xl font-bold text-white leading-none tracking-tight">
+                         Engineered <br/>
+                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFEA05] to-orange-400">
+                            For Speed.
+                         </span>
                      </h1>
                      
-                     <p className="text-gray-400 text-xl max-w-lg leading-relaxed border-l-[3px] border-[#FFEA05] pl-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 fill-mode-both sm:text-lg">
-                         We engineer custom, heat-treated pallets for high-value logistics. <br/>
-                         <span className="text-white font-bold tracking-tight mt-2 block">New wood only. No scrap. No compromises.</span>
+                     <p className="text-gray-400 text-lg max-w-lg leading-relaxed border-l-2 border-[#FFEA05]/20 pl-6">
+                         From rough lumber to precision components. We handle high-volume notching, ripping, and resawing with <span className="text-white font-bold">0.01mm accuracy</span>.
                      </p>
-
-                     <div className="flex flex-wrap gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700 fill-mode-both relative">
-                        <button 
-                            onClick={() => calculatorRef.current?.start(false)}
-                            className="bg-[#FFEA05] text-black px-10 py-5 rounded-sm font-black text-sm uppercase tracking-[0.2em] hover:bg-white hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,234,5,0.2)] flex items-center gap-3 group relative overflow-hidden"
-                        >
-                            <span className="relative z-10 flex items-center gap-3">
-                                Request Quote <ArrowRight className="group-hover:translate-x-2 transition-transform duration-300" size={20} />
-                            </span>
-                            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
-                        </button>
-                        
-                        <div className="relative group/audit">
-                            {/* Hover Tooltip */}
-                            <div className="absolute bottom-[calc(100%+20px)] left-1/2 -translate-x-1/2 w-80 bg-[#151515] border border-[#FFEA05] p-6 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] opacity-0 pointer-events-none group-hover/audit:opacity-100 group-hover/audit:translate-y-[-10px] transition-all duration-300 z-[60]">
-                                <div className="text-center">
-                                    <h4 className="text-[#FFEA05] font-black text-sm uppercase tracking-wider mb-2">Unlock Engineering Insights</h4>
-                                    <p className="text-gray-300 text-xs leading-relaxed">See if you qualify for a free pallet optimization audit.</p>
-                                </div>
-                                {/* Tooltip Arrow */}
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 w-4 h-4 bg-[#151515] border-r border-b border-[#FFEA05] rotate-45 -translate-y-2"></div>
-                            </div>
-
-                            <button 
-                                onClick={() => setIsAuditModalOpen(true)}
-                                className="border border-white/20 hover:border-[#FFEA05] text-white px-10 py-5 rounded-sm font-black text-sm uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center gap-3 group backdrop-blur-md relative overflow-hidden active:scale-95"
-                            >
-                                 <PlayCircle className="text-[#FFEA05] group-hover:rotate-12 transition-transform duration-500" size={24} /> 
-                                 Free Design Audit
-                            </button>
-                        </div>
-                     </div>
                  </div>
 
                  {/* EMBEDDED CALCULATOR */}
-                 <div id="quote-calculator" className="relative animate-in slide-in-from-bottom-8 fade-in duration-700 delay-100">
-                    <PalletQuoteCalculator ref={calculatorRef} isEmbedded={true} />
+                 <div className="relative animate-in slide-in-from-bottom-8 fade-in duration-700 delay-100">
+                    <PalletQuoteCalculator isEmbedded={true} />
                  </div>
              </div>
-
-             {/* AUDIT MODAL */}
-             <AuditModal 
-                isOpen={isAuditModalOpen} 
-                onClose={() => setIsAuditModalOpen(false)} 
-                onQualify={handleQualify}
-             />
         </section>
     );
 };
