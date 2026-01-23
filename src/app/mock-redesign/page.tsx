@@ -314,31 +314,36 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, o
   // WIZARD STATE
   return (
     <div 
-        className={`flex flex-col ${isEmbedded ? 'bg-[#121212] backdrop-blur-xl border border-white/20 border-t-white/30 ring-1 ring-white/10 rounded-sm shadow-[0_0_100px_rgba(255,234,5,0.2)] relative overflow-hidden transition-[height] duration-500 ease-in-out' : ''}`}
-        style={{ height: containerHeight }}
+        className={`flex flex-col ${isEmbedded ? 'fixed inset-0 z-50 bg-black md:relative md:inset-auto md:z-auto md:bg-[#121212] md:backdrop-blur-xl md:border md:border-white/20 md:border-t-white/30 md:ring-1 md:ring-white/10 md:rounded-sm md:shadow-[0_0_100px_rgba(255,234,5,0.2)] overflow-hidden transition-[height] duration-500 ease-in-out' : ''}`}
+        style={isEmbedded ? {} : { height: containerHeight }}
     >
        <div ref={contentRef} className="flex flex-col">
        {/* Header */}
        <div className="relative border-b border-white/5 bg-[#000000]/40 backdrop-blur-md">
-          <div className="flex items-center justify-between p-4 relative z-10">
-            <div className="flex items-center gap-2">
-               <div className="w-1.5 h-6 bg-[#FFEA05] rounded-sm"></div>
-               <div className="w-1.5 h-6 bg-[#FFEA05] rounded-sm"></div>
-               <span className="text-white font-bold font-serif tracking-wide text-lg">Build Your Quote</span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 relative z-10 gap-2">
+            {/* Top Row: Logo + Title + Close Button */}
+            <div className="flex items-center justify-between w-full sm:w-auto">
+               <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-5 sm:h-6 bg-[#FFEA05] rounded-sm"></div>
+                  <div className="w-1.5 h-5 sm:h-6 bg-[#FFEA05] rounded-sm"></div>
+                  <span className="text-white font-bold font-serif tracking-wide text-base sm:text-lg">Build Your Quote</span>
+               </div>
+               <button 
+                  onClick={() => { setStarted(false); setStep(1); onClose?.(); }} 
+                  className="text-gray-500 hover:text-white transition-colors sm:absolute sm:top-4 sm:right-4"
+                  aria-label="Exit Configuration"
+               >
+                  <X size={18} />
+               </button>
             </div>
-            <button 
-               onClick={() => { setStarted(false); setStep(1); onClose?.(); }} 
-               className="text-gray-500 hover:text-white transition-colors"
-               aria-label="Exit Configuration"
-            >
-               <X size={18} />
-            </button>
-            <div className="absolute top-4 right-12">
-                <div className="flex items-center gap-3">
+            
+            {/* Stepper Row: Mobile = below title, Desktop = absolute positioned */}
+            <div className="flex items-center justify-center sm:absolute sm:top-4 sm:right-12">
+                <div className="flex items-center gap-2 sm:gap-3">
                     {['SPECS', 'LOAD', 'FINALIZE'].map((label, i) => (
-                        <div key={label} className="flex items-center gap-2">
+                        <div key={label} className="flex items-center gap-1 sm:gap-2">
                             <span 
-                                className={`text-[10px] font-bold tracking-widest transition-colors duration-500 ${
+                                className={`text-[9px] sm:text-[10px] font-bold tracking-widest transition-colors duration-500 ${
                                     step === i + 1 
                                         ? 'text-[#FFEA05] drop-shadow-[0_0_8px_rgba(255,234,5,0.6)]' 
                                         : 'text-gray-700'
@@ -348,7 +353,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, o
                             </span>
                             {i < 2 && (
                                 <ChevronRight 
-                                    size={14} 
+                                    size={12} 
                                     className={`text-[#FFEA05] transition-all duration-300 ${step > i ? 'opacity-100 translate-x-0' : 'opacity-30 -translate-x-1'}`} 
                                     strokeWidth={3}
                                 />
@@ -738,61 +743,64 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, o
 
           {/* STEP 4: SUCCESS (The "Wood Shop" Ticket) */}
           {step === 4 && (
-             <div className="animate-in zoom-in-95 fade-in duration-500 flex flex-col items-center text-center p-6 pb-2">
+             <div className="animate-in zoom-in-95 fade-in duration-500 flex flex-col items-center text-center p-4 sm:p-6 pb-4 overflow-y-auto max-h-[calc(100vh-80px)] sm:max-h-none">
                 
                 {/* Visual Anchor: Golden Check */}
-                <div className="w-16 h-16 rounded-full bg-[#FFEA05]/10 border border-[#FFEA05] flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(255,234,5,0.2)] animate-[pulse_3s_infinite]">
-                    <Check size={32} className="text-[#FFEA05]" strokeWidth={3} />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#FFEA05]/10 border border-[#FFEA05] flex items-center justify-center mb-4 sm:mb-6 shadow-[0_0_30px_rgba(255,234,5,0.2)] animate-[pulse_3s_infinite]">
+                    <Check size={24} className="text-[#FFEA05] sm:hidden" strokeWidth={3} />
+                    <Check size={32} className="text-[#FFEA05] hidden sm:block" strokeWidth={3} />
                 </div>
 
-                <h2 className="text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-[#FFEA05] mb-4 drop-shadow-[0_2px_10px_rgba(255,234,5,0.3)]">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-[#FFEA05] mb-3 sm:mb-4 drop-shadow-[0_2px_10px_rgba(255,234,5,0.3)]">
                     Quote Request Received
                 </h2>
 
-                <p className="text-white text-sm md:text-base max-w-lg mb-8 leading-relaxed opacity-90">
-                    Thank you for the opportunity. We're reviewing your specs manually. <br/>
+                <p className="text-white text-xs sm:text-sm md:text-base max-w-lg mb-4 sm:mb-8 leading-relaxed opacity-90">
+                    Thank you for the opportunity. We're reviewing your specs manually. <br className="hidden sm:block"/>
                     A member of our team will contact you shortly.
                 </p>
 
                 {/* The Ticket / Reference Box */}
-                <div className="bg-[#111] border border-white/10 rounded-sm p-6 w-full max-w-md mb-8 relative overflow-hidden group">
+                <div className="bg-[#111] border border-white/10 rounded-sm p-4 sm:p-6 w-full max-w-md mb-4 sm:mb-8 relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-1 h-full bg-[#FFEA05]"></div>
-                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Your Reference Ticket</p>
-                    <p className="text-2xl font-mono text-white tracking-widest">{quoteId}</p>
+                    <p className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Your Reference Ticket</p>
+                    <p className="text-xl sm:text-2xl font-mono text-white tracking-widest">{quoteId}</p>
                     <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-[#FFEA05]/5 rounded-full blur-xl group-hover:bg-[#FFEA05]/10 transition-colors"></div>
                 </div>
 
                 {/* Contact Grid - "Wood Shop Style" */}
-                <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-white/10 pt-8">
-                    <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#FFEA05]">
-                            <Phone size={14} />
+                <div className="w-full max-w-2xl grid grid-cols-3 gap-2 sm:gap-4 border-t border-white/10 pt-4 sm:pt-8">
+                    <div className="flex flex-col items-center gap-1 sm:gap-2">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center text-[#FFEA05]">
+                            <Phone size={12} className="sm:hidden" />
+                            <Phone size={14} className="hidden sm:block" />
                         </div>
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Call Us</p>
-                        <div className="text-xs text-white text-center">
-                            <span className="block mb-1"><span className="text-gray-500">Sales:</span> 647-951-3080</span>
-                            <span className="block"><span className="text-gray-500">General:</span> 647-617-9511</span>
+                        <p className="text-[8px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Call</p>
+                        <div className="text-[10px] sm:text-xs text-white text-center">
+                            <span className="block">647-951-3080</span>
+                            <span className="block text-gray-500">647-617-9511</span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#FFEA05]">
-                            <Mail size={14} />
+                    <div className="flex flex-col items-center gap-1 sm:gap-2">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center text-[#FFEA05]">
+                            <Mail size={12} className="sm:hidden" />
+                            <Mail size={14} className="hidden sm:block" />
                         </div>
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Email</p>
-                        <a href="mailto:sales@sunpacpallets.com" className="text-xs text-white hover:text-[#FFEA05] transition-colors">
+                        <p className="text-[8px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Email</p>
+                        <a href="mailto:sales@sunpacpallets.com" className="text-[10px] sm:text-xs text-white hover:text-[#FFEA05] transition-colors break-all">
                             sales@sunpacpallets.com
                         </a>
                     </div>
 
-                    <div className="flex flex-col items-center gap-2">
-                         <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#FFEA05]">
-                            <MapPin size={14} />
+                    <div className="flex flex-col items-center gap-1 sm:gap-2">
+                         <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center text-[#FFEA05]">
+                            <MapPin size={12} className="sm:hidden" />
+                            <MapPin size={14} className="hidden sm:block" />
                         </div>
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Visit</p>
-                        <p className="text-xs text-white text-center leading-relaxed">
-                            8999 Concession Rd 5<br/>
-                            Uxbridge, ON L9P 1R1
+                        <p className="text-[8px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Visit</p>
+                        <p className="text-[10px] sm:text-xs text-white text-center leading-relaxed">
+                            Uxbridge, ON
                         </p>
                     </div>
                 </div>
@@ -800,7 +808,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, o
                 {/* Return Home Action */}
                 <button 
                     onClick={() => window.location.reload()}
-                    className="mt-12 text-gray-500 text-xs hover:text-white transition-colors flex items-center gap-2 uppercase tracking-widest"
+                    className="mt-6 sm:mt-12 mb-4 text-gray-500 text-xs hover:text-white transition-colors flex items-center gap-2 uppercase tracking-widest"
                 >
                     <ArrowLeft size={12} /> Return to Home Page
                 </button>
