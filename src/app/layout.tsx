@@ -37,6 +37,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${adamina.variable} ${poppins.variable} ${blackOpsOne.variable} antialiased`}
+        suppressHydrationWarning
       >
         {children}
       </body>

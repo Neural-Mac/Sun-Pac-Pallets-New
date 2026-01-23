@@ -70,55 +70,61 @@ export const ProcessTimeline = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {steps.map((step) => (
-                        <div key={step.id} className="group relative h-[450px] overflow-hidden border border-[#333] bg-[#111] hover:border-[#FFEA05] transition-all duration-500">
+                        <div key={step.id} className="group relative h-[450px] overflow-hidden border border-[#333] bg-[#111] hover:border-[#FFEA05] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(255,234,5,0.15)]">
                             
                             {/* Image Background (Revealed on Hover) */}
                             <div 
                                 className={`absolute inset-0 ${step.bg} opacity-40 md:opacity-20 md:group-hover:opacity-100 transition-opacity duration-700 grayscale group-hover:grayscale-0 transform group-hover:scale-110 ease-out`}
                                 style={{ backgroundImage: `url('${step.bgImage}')` }}
                             ></div>
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90 group-hover:via-black/20 transition-all duration-500"></div>
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/95 group-hover:via-black/40 transition-all duration-500"></div>
 
                             {/* Content */}
                             <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
                                 <div className="mb-auto opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <span className="font-mono text-4xl font-bold text-[#333] group-hover:text-[#FFEA05] transition-colors">
+                                    <span className="font-mono text-4xl font-bold text-[#333] group-hover:text-[#FFEA05] transition-colors relative z-20 drop-shadow-lg">
                                         {step.id}
                                     </span>
                                 </div>
 
-                                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-[#FFEA05] transition-colors">
+                                <div className="transform transition-transform duration-500">
+                                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-[#FFEA05] transition-colors drop-shadow-md whitespace-nowrap truncate">
                                         {step.title}
                                     </h3>
-                                    <p className="text-xs font-mono text-[#a39603] mb-3 uppercase tracking-wide">
+                                    <p className="text-xs font-mono text-[#a39603] mb-3 uppercase tracking-wide group-hover:text-[#FFEA05] transition-colors whitespace-nowrap truncate">
                                         {step.subtitle}
                                     </p>
-                                    <p className="text-gray-400 text-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 line-clamp-3">
-                                        {step.desc}
-                                    </p>
                                     
-                                    {/* Tech Specs */}
-                                    {step.specs && (
-                                        <div className="mt-4 pt-4 border-t border-[#FFEA05]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                                            <ul className="space-y-1">
-                                                {step.specs.map((spec, i) => (
-                                                    <li key={i} className="text-[10px] text-gray-300 font-mono flex items-center gap-2">
-                                                        <span className="w-1 h-1 bg-[#FFEA05]"></span>
-                                                        {spec}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-
-                                    {step.overlay && (
-                                        <div className="mt-4 pt-4 border-t border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                                            <p className="text-[10px] font-mono text-gray-500">
-                                                {step.overlay}
+                                    {/* Collapsible Details */}
+                                    <div className="max-h-0 group-hover:max-h-[300px] transition-[max-height] duration-700 ease-in-out overflow-hidden">
+                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                                            <p className="text-white font-bold text-sm leading-relaxed drop-shadow-md">
+                                                {step.desc}
                                             </p>
+                                            
+                                            {/* Tech Specs */}
+                                            {step.specs && (
+                                                <div className="mt-4 pt-4 border-t border-[#FFEA05]/20">
+                                                    <ul className="space-y-1">
+                                                        {step.specs.map((spec, i) => (
+                                                            <li key={i} className="text-[10px] text-white font-mono flex items-center gap-2 font-bold">
+                                                                <span className="w-1 h-1 bg-[#FFEA05]"></span>
+                                                                {spec}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {step.overlay && (
+                                                <div className="mt-4 pt-4 border-t border-white/10">
+                                                    <p className="text-[10px] font-mono text-gray-300 group-hover:text-white transition-colors">
+                                                        {step.overlay}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             </div>
                         </div>

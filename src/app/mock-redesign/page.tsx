@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowRight,
   CheckCircle2,
@@ -147,6 +148,11 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, o
   }));
   
   const [preQualified, setPreQualified] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+      setMounted(true);
+  }, []);
 
 
   const [showAdvancedSpecs, setShowAdvancedSpecs] = useState(false);
@@ -311,13 +317,30 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, o
     );
   }
 
-  // WIZARD STATE
-  return (
-    <div 
-        className={`flex flex-col h-full ${isEmbedded ? 'bg-black overflow-y-auto md:bg-[#121212] md:backdrop-blur-xl md:border md:border-white/20 md:border-t-white/30 md:ring-1 md:ring-white/10 md:rounded-sm md:shadow-[0_0_100px_rgba(255,234,5,0.2)] md:overflow-hidden transition-[height] duration-500 ease-in-out' : ''}`}
-        style={isEmbedded ? {} : { height: containerHeight }}
-    >
-       <div ref={contentRef} className="flex flex-col">
+  // WIZARD STATE (PORTAL)
+  if (started) {
+      // Placeholder to prevent layout shift in Hero
+      const placeholder = <div className="w-full h-full min-h-[500px] opacity-0 pointer-events-none" />;
+      
+      if (!mounted) return placeholder;
+
+      return (
+        <>
+            {placeholder}
+            {createPortal(
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300" onClick={(e) => {
+                    // Start closing if clicked outside (optional, but good UX)
+                     // e.stopPropagation();
+                     // onClose?.();
+                     // setStarted(false);
+                }}>
+                    {/* Centered Modal Container */}
+                    <div 
+                        onClick={(e) => e.stopPropagation()} // Prevent click through
+                        className={`w-full max-w-4xl max-h-[90vh] flex flex-col bg-[#121212] backdrop-blur-xl border border-white/20 border-t-white/30 ring-1 ring-white/10 rounded-sm shadow-[0_0_100px_rgba(255,234,5,0.2)] overflow-hidden transition-all duration-500 ease-in-out`}
+                        style={{ height: containerHeight === 'auto' ? 'auto' : containerHeight }}
+                    >
+                        <div ref={contentRef} className="flex flex-col">
        {/* Header */}
        <div className="relative border-b border-white/5 bg-[#000000]/40 backdrop-blur-md">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 relative z-10 gap-2">
@@ -769,38 +792,36 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, o
                 </div>
 
                 {/* Contact Grid - "Wood Shop Style" */}
-                <div className="w-full max-w-2xl grid grid-cols-3 gap-2 sm:gap-4 border-t border-white/10 pt-4 sm:pt-8">
-                    <div className="flex flex-col items-center gap-1 sm:gap-2">
-                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center text-[#FFEA05]">
-                            <Phone size={12} className="sm:hidden" />
-                            <Phone size={14} className="hidden sm:block" />
+                <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-3 gap-8 border-t border-white/10 pt-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-forwards">
+                    <div className="flex flex-col items-center gap-3 group">
+                        <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
+                            <Phone size={24} className="animate-[pulse_3s_ease-in-out_infinite]" />
                         </div>
-                        <p className="text-[8px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Call</p>
-                        <div className="text-[10px] sm:text-xs text-white text-center">
-                            <span className="block">647-951-3080</span>
-                            <span className="block text-gray-500">647-617-9511</span>
+                        <p className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Call</p>
+                        <div className="text-base md:text-lg text-white text-center font-medium leading-relaxed">
+                            <span className="block group-hover:text-[#FFEA05] transition-colors"><span className="text-gray-500 text-sm mr-2">General:</span>647-617-9511</span>
+                            <span className="block group-hover:text-[#FFEA05] transition-colors"><span className="text-gray-500 text-sm mr-2">Sales:</span>647-951-3080</span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-center gap-1 sm:gap-2">
-                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center text-[#FFEA05]">
-                            <Mail size={12} className="sm:hidden" />
-                            <Mail size={14} className="hidden sm:block" />
+                    <div className="flex flex-col items-center gap-3 group">
+                        <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
+                            <Mail size={24} className="animate-[pulse_3s_ease-in-out_infinite] delay-700" />
                         </div>
-                        <p className="text-[8px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Email</p>
-                        <a href="mailto:sales@sunpacpallets.com" className="text-[10px] sm:text-xs text-white hover:text-[#FFEA05] transition-colors break-all">
+                        <p className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Email</p>
+                        <a href="mailto:sales@sunpacpallets.com" className="text-base md:text-lg text-white hover:text-[#FFEA05] transition-colors font-medium break-all">
                             sales@sunpacpallets.com
                         </a>
                     </div>
 
-                    <div className="flex flex-col items-center gap-1 sm:gap-2">
-                         <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center text-[#FFEA05]">
-                            <MapPin size={12} className="sm:hidden" />
-                            <MapPin size={14} className="hidden sm:block" />
+                    <div className="flex flex-col items-center gap-3 group">
+                         <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
+                            <MapPin size={24} className="animate-[pulse_3s_ease-in-out_infinite] delay-1000" />
                         </div>
-                        <p className="text-[8px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Visit</p>
-                        <p className="text-[10px] sm:text-xs text-white text-center leading-relaxed">
-                            Uxbridge, ON
+                        <p className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Production Facility</p>
+                        <p className="text-base md:text-lg text-white text-center leading-relaxed font-medium group-hover:text-[#FFEA05] transition-colors">
+                            8999 Concession Rd 5<br/>
+                            Uxbridge, Ontario L9P 1R1
                         </p>
                     </div>
                 </div>
@@ -850,8 +871,16 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, o
        </div>
        )}
     </div>
-  </div>
-  );
+                    </div>
+                </div>,
+                document.body
+            )}
+        </>
+      );
+  }
+
+  // Fallback (should be covered by !started or started)
+  return null;
 });
 
 PalletQuoteCalculator.displayName = 'PalletQuoteCalculator';
