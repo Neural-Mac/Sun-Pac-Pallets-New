@@ -314,7 +314,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, o
   // WIZARD STATE
   return (
     <div 
-        className={`flex flex-col ${isEmbedded ? 'fixed inset-0 z-50 bg-black md:relative md:inset-auto md:z-auto md:bg-[#121212] md:backdrop-blur-xl md:border md:border-white/20 md:border-t-white/30 md:ring-1 md:ring-white/10 md:rounded-sm md:shadow-[0_0_100px_rgba(255,234,5,0.2)] overflow-hidden transition-[height] duration-500 ease-in-out' : ''}`}
+        className={`flex flex-col h-full ${isEmbedded ? 'bg-black overflow-y-auto md:bg-[#121212] md:backdrop-blur-xl md:border md:border-white/20 md:border-t-white/30 md:ring-1 md:ring-white/10 md:rounded-sm md:shadow-[0_0_100px_rgba(255,234,5,0.2)] md:overflow-hidden transition-[height] duration-500 ease-in-out' : ''}`}
         style={isEmbedded ? {} : { height: containerHeight }}
     >
        <div ref={contentRef} className="flex flex-col">
@@ -743,7 +743,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, o
 
           {/* STEP 4: SUCCESS (The "Wood Shop" Ticket) */}
           {step === 4 && (
-             <div className="animate-in zoom-in-95 fade-in duration-500 flex flex-col items-center text-center p-4 sm:p-6 pb-4 overflow-y-auto max-h-[calc(100vh-80px)] sm:max-h-none">
+             <div className="animate-in zoom-in-95 fade-in duration-500 flex flex-col items-center text-center p-4 sm:p-6 pb-8">
                 
                 {/* Visual Anchor: Golden Check */}
                 <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#FFEA05]/10 border border-[#FFEA05] flex items-center justify-center mb-4 sm:mb-6 shadow-[0_0_30px_rgba(255,234,5,0.2)] animate-[pulse_3s_infinite]">
@@ -1212,12 +1212,12 @@ const Hero = ({ calculatorRef, isQuoteActive, setIsQuoteActive }: HeroProps) => 
                      className={`
                          transition-all duration-500 ease-in-out
                          ${isQuoteActive 
-                             ? 'fixed inset-0 z-[60] flex items-center justify-center p-4 pointer-events-none' 
+                             ? 'fixed inset-0 z-[60] flex items-center justify-center md:p-4 pointer-events-none' 
                              : 'relative animate-in slide-in-from-bottom-8 fade-in duration-700 delay-100'
                          }
                      `}
                  >
-                     <div className={`transition-all duration-500 ${isQuoteActive ? 'w-full max-w-4xl pointer-events-auto' : 'w-full'}`}>
+                     <div className={`transition-all duration-500 ${isQuoteActive ? 'w-full h-full md:h-auto md:max-w-4xl pointer-events-auto' : 'w-full'}`}>
                          <PalletQuoteCalculator ref={calculatorRef} isEmbedded={true} onClose={() => setIsQuoteActive(false)} onOpen={() => setIsQuoteActive(true)} />
                      </div>
                  </div>
