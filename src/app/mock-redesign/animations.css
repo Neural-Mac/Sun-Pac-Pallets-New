@@ -1,0 +1,211 @@
+/* Pro Max Animation Keyframes */
+
+@keyframes ken-burns {
+  0% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.1) translate(-2%, -1%); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes shimmer-slow {
+  0% { transform: translateX(-100%) skewX(12deg); }
+  100% { transform: translateX(200%) skewX(12deg); }
+}
+
+@keyframes flash {
+  0% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes scan {
+  0%, 100% { top: 0; }
+  50% { top: calc(100% - 2px); }
+}
+
+@keyframes pulse-shadow {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 234, 5, 0.1); }
+  50% { box-shadow: 0 0 25px rgba(255, 234, 5, 0.3); }
+}
+
+@keyframes border-breathe {
+  0% { border-color: rgba(163, 150, 3, 0.3); }
+  50% { border-color: rgba(255, 234, 5, 0.8); }
+  100% { border-color: rgba(163, 150, 3, 0.3); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 0.2; }
+  90% { opacity: 0.2; }
+  100% { transform: translateY(100px) translateX(20px); opacity: 0; }
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+@keyframes beam-h { 
+  0% { left: -100%; opacity: 0; } 
+  50% { opacity: 0.6; } 
+  100% { left: 100%; opacity: 0; } 
+}
+
+@keyframes beam-v { 
+  0% { top: -100%; opacity: 0; } 
+  50% { opacity: 0.6; } 
+  100% { top: 100%; opacity: 0; } 
+}
+
+/* Utility classes for animations */
+.animate-ken-burns {
+  animation: ken-burns 12s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.animate-shimmer-slow {
+  animation: shimmer-slow 6s infinite linear;
+}
+
+.animate-scan {
+  animation: scan 3s ease-in-out infinite;
+}
+
+.animate-pulse-shadow {
+  animation: pulse-shadow 3s infinite;
+}
+
+.animate-border-breathe {
+  animation: border-breathe 3s infinite ease-in-out;
+}
+
+.animate-subtle-pulse {
+  animation: subtle-pulse 3s infinite ease-in-out;
+}
+
+/* Beam effects */
+.beam-h { 
+  position: absolute; 
+  height: 2px; 
+  width: 100%; 
+  background: linear-gradient(90deg, transparent, #ffea05, transparent); 
+  animation: beam-h 4s linear infinite; 
+  box-shadow: 0 0 10px rgba(255, 234, 5, 0.4); 
+}
+
+.beam-v { 
+  position: absolute; 
+  width: 2px; 
+  height: 100%; 
+  background: linear-gradient(180deg, transparent, #ffea05, transparent); 
+  animation: beam-v 4s linear infinite; 
+  box-shadow: 0 0 10px rgba(255, 234, 5, 0.4); 
+}
+
+/* Sawdust Particles */
+.sawdust-particle {
+  animation: float infinite linear;
+}
+
+/* Input styles */
+.input-compact {
+  background-color: #151515;
+  border: 1px solid #333;
+  color: white;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.input-compact:focus {
+  outline: none;
+  border-color: #FFEA05;
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: #FFEA05;
+  color: #000000;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 234, 5, 0.3);
+}
+
+.btn-wood {
+  background: linear-gradient(to bottom, #f4e4bc, #e8d090);
+  color: #3e2723;
+  border: 1px solid #8b5a2b;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.btn-wood:hover {
+  background: linear-gradient(to bottom, #fff5d7, #f4e4bc);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar { 
+  width: 4px; 
+}
+
+.custom-scrollbar::-webkit-scrollbar-track { 
+  background: transparent; 
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb { 
+  background: #444; 
+  border-radius: 2px; 
+}
+
+/* Text effects */
+.hot-brand { 
+  text-shadow: 0 0 2px rgba(255, 72, 0, 0.6), 0 0 5px rgba(255, 136, 0, 0.4); 
+}
+
+/* 3D Transform utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.my-rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.translate-z-0 {
+  transform: translateZ(0);
+}
+
+.translate-z-25 {
+  transform: translateZ(25px);
+}
+
+.translate-z-50 {
+  transform: translateZ(50px);
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}

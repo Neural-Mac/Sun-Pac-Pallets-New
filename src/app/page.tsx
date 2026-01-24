@@ -683,7 +683,10 @@ const Navbar = ({ onRequestQuote }: NavbarProps) => {
             <nav className={`fixed top-4 left-4 right-4 z-50 transition-all duration-500 ${isScrolled ? 'top-2' : 'top-4'}`}>
                 <div className={`max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex justify-between items-center rounded-sm transition-all duration-300 border backdrop-blur-md shadow-2xl ${isScrolled ? 'bg-black/80 border-white/20' : 'bg-white/5 border-white/10'}`}>
                     {/* LOGO SECTION - PRO MAX UPGRADE */}
-                    <div className="flex items-center gap-3 md:gap-5 group cursor-pointer relative z-50">
+                    <div 
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="flex items-center gap-3 md:gap-5 group cursor-pointer relative z-50"
+                    >
                         {/* "SPP" Industrial Monogram */}
                         <div className="relative w-10 h-10 md:w-12 md:h-12 bg-[#FFEA05] rounded-sm flex items-center justify-center shadow-[0_0_20px_rgba(255,234,5,0.15)] group-hover:shadow-[0_0_35px_rgba(255,234,5,0.4)] transition-all duration-500 border border-[#FFEA05]">
                              <span className="font-black text-black text-lg md:text-xl tracking-tighter transform group-hover:scale-110 transition-transform duration-300">SPP</span>
@@ -697,7 +700,11 @@ const Navbar = ({ onRequestQuote }: NavbarProps) => {
                     
                     {/* DESKTOP MENU */}
                     <div className="hidden lg:flex items-center gap-12 h-full">
-                        <a href="#" className={navLinkStyle}>
+                        <a 
+                            href="#" 
+                            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            className={navLinkStyle}
+                        >
                             Home
                             <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFEA05] transition-all duration-300 group-hover:w-full"></span>
                         </a>
@@ -728,7 +735,7 @@ const Navbar = ({ onRequestQuote }: NavbarProps) => {
                             </div>
                         </div>
 
-                        <a href="#" className={navLinkStyle}>
+                        <a href="#contact" className={navLinkStyle}>
                             Contact Us
                             <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFEA05] transition-all duration-300 group-hover:w-full"></span>
                         </a>
@@ -756,7 +763,17 @@ const Navbar = ({ onRequestQuote }: NavbarProps) => {
                 <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-2xl animate-in slide-in-from-top-10 fade-in duration-300 flex flex-col pt-32 px-6">
                     {/* MENU LINKS */}
                     <div className="flex flex-col gap-6 items-center">
-                        <a href="#" className="text-3xl font-black uppercase tracking-tight text-white hover:text-[#FFEA05] transition-colors">Home</a>
+                        <a 
+                            href="#" 
+                            onClick={(e) => { 
+                                e.preventDefault(); 
+                                setIsMobileMenuOpen(false);
+                                window.scrollTo({ top: 0, behavior: 'smooth' }); 
+                            }}
+                            className="text-3xl font-black uppercase tracking-tight text-white hover:text-[#FFEA05] transition-colors"
+                        >
+                            Home
+                        </a>
                         <div className="w-12 h-[1px] bg-white/10"></div>
                         
                         <div className="flex flex-col gap-4 w-full items-center">
@@ -767,7 +784,13 @@ const Navbar = ({ onRequestQuote }: NavbarProps) => {
                         </div>
                         
                         <div className="w-12 h-[1px] bg-white/10 my-2"></div>
-                        <a href="#" className="text-3xl font-black uppercase tracking-tight text-white hover:text-[#FFEA05] transition-colors">Contact</a>
+                        <a 
+                            href="#contact" 
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="text-3xl font-black uppercase tracking-tight text-white hover:text-[#FFEA05] transition-colors"
+                        >
+                            Contact
+                        </a>
                     </div>
                     
                     {/* MOBILE CALL TO ACTION */}
@@ -1113,7 +1136,7 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
             <div className="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-12 gap-16 items-start">
                 
                 {/* Column 1: Compact Inquiry Form (Span 5) */}
-                <div className="lg:col-span-5">
+                <div className="lg:col-span-5" id="contact">
                     <div className="bg-[#111] border-l-4 border-[#FFEA05] p-6 shadow-2xl relative group">
                         <div className="absolute -top-3 -right-3 w-16 h-16 border-t-2 border-r-2 border-[#FFEA05]/20 rounded-tr-xl group-hover:border-[#FFEA05] transition-colors duration-500"></div>
                         
