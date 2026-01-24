@@ -1181,11 +1181,11 @@ const Hero = ({ calculatorRef, isQuoteActive, setIsQuoteActive }: HeroProps) => 
 
     return (
 
-        <section className="relative pt-32 pb-16 md:pb-24 px-4 md:px-6 overflow-hidden min-h-[90vh] flex items-center">
+        <section className="relative pt-24 pb-12 md:pb-16 px-4 md:px-6 overflow-hidden min-h-[80vh] flex items-center">
              {/* Background Effects */}
              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FFEA05]/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 md:gap-16 items-center relative z-10 w-full">
+             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 md:gap-12 items-center relative z-10 w-full">
                  <div className="space-y-6 md:space-y-8 relative z-20">
                      <div className="inline-flex items-center gap-2 border border-[#FFEA05]/30 bg-[#FFEA05]/10 text-[#FFEA05] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(255,234,5,0.1)] backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700 animate-[pulse-shadow_3s_infinite]">
                          <span className="relative flex h-2 w-2">
