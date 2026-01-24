@@ -1192,7 +1192,7 @@ const Hero = ({ calculatorRef, isQuoteActive, setIsQuoteActive }: HeroProps) => 
                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFEA05] opacity-75"></span>
                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FFEA05]"></span>
                          </span>
-                         Now Accepting New Customers For 2026
+                         Now Accepting New Customers for {new Date().toLocaleString('en-US', { month: 'long' })}, {new Date().getFullYear()}
                      </div>
                      
                      <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] md:leading-[0.85] tracking-tight animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200 fill-mode-both">
@@ -1269,9 +1269,16 @@ const Hero = ({ calculatorRef, isQuoteActive, setIsQuoteActive }: HeroProps) => 
                          }
                      `}
                  >
-                     <div className={`transition-all duration-500 ${isQuoteActive ? 'w-full h-full md:h-auto md:max-w-4xl pointer-events-auto' : 'w-full'}`}>
-                         <PalletQuoteCalculator ref={calculatorRef} isEmbedded={true} onClose={() => setIsQuoteActive(false)} onOpen={() => setIsQuoteActive(true)} />
-                     </div>
+                     <div className={`transition-all duration-500 ${isQuoteActive ? 'w-full h-full md:h-auto md:max-w-4xl pointer-events-auto' : 'w-full h-[550px]'}`}>
+                          <div className="relative w-full h-full rounded-sm border border-[#FFEA05]/30 shadow-2xl overflow-hidden bg-[#202020]">
+                              {/* Corner Brackets */}
+                              <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#FFEA05]"></div>
+                              <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#FFEA05]"></div>
+                              <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#FFEA05]"></div>
+                              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#FFEA05]"></div>
+                              <PalletQuoteCalculator ref={calculatorRef} isEmbedded={true} onClose={() => setIsQuoteActive(false)} onOpen={() => setIsQuoteActive(true)} />
+                          </div>
+                      </div>
                  </div>
              </div>
 
@@ -1529,6 +1536,9 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
                                     <input type="email" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors rounded-none placeholder-gray-600 text-sm" placeholder="EMAIL" />
                                 </div>
                             </div>
+                            
+                            {/* Company Field */}
+                            <input type="text" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors rounded-none placeholder-gray-600 text-sm" placeholder="COMPANY" />
                             
                             <div className="relative">
                                 {isCustomSubject ? (

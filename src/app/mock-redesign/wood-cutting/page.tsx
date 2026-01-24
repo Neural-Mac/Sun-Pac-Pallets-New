@@ -6,7 +6,7 @@ import {
   ArrowRight, CheckCircle2, X, ChevronDown, ChevronRight,
   Ruler, Factory, Scissors, Layers, Check,
   Phone, Mail, MapPin, ArrowLeft,
-  Trees, Truck, Settings, Hammer, ClipboardList
+  Trees, Truck, Settings, Hammer, ClipboardList, Upload, ThermometerSun
 } from 'lucide-react';
 import { DarkIndustrialTheme, IndustrialNavbar } from '@/components/mock-redesign';
 import '../animations.css';
@@ -285,10 +285,13 @@ const WoodCuttingQuoteForm = React.forwardRef(({ isEmbedded = false, onClose, on
     serviceType: 'Notching',
     materialSource: 'Provided by Sun Pac',
     species: 'SPF',
+    heatTreated: false,
     dimensions: [{ length: '', width: '', thickness: '' }],
     quantity: '',
     cutPattern: '',
-    contact: { name: '', company: '', email: '', phone: '' }
+    contact: { name: '', company: '', email: '', phone: '' },
+    notes: '',
+    fileName: ''
   });
 
   useEffect(() => { setMounted(true); }, []);
@@ -450,11 +453,72 @@ const WoodCuttingQuoteForm = React.forwardRef(({ isEmbedded = false, onClose, on
                 </div>
               </div>
 
+              {/* Persistent Config Summary Bar (Steps 2 & 3) */}
+              {(step === 2 || step === 3) && (
+                  <div className="w-full bg-black/20 border-t border-white/5 py-1.5 px-4 flex items-center justify-between animate-in fade-in slide-in-from-top-2 relative z-0">
+                      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar mask-grad-r">
+                          {/* Service Tag */}
+                          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-[#FFEA05]/10 border border-[#FFEA05]/20 shrink-0">
+                              <Scissors size={10} className="text-[#FFEA05]" />
+                              <span className="text-[9px] font-bold text-[#FFEA05] uppercase tracking-wider">
+                                  {formData.serviceType}
+                              </span>
+                          </div>
+                          
+                          {/* Supply Tag */}
+                          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-white/5 border border-white/10 shrink-0">
+                              <Truck size={10} className="text-gray-500" />
+                              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                                  {formData.materialSource === 'Provided by Sun Pac' ? 'Sun Pac Supply' : 'Customer Supply'}
+                              </span>
+                          </div>
+
+                          {/* Species Tag (Conditional) */}
+                          {formData.materialSource === 'Provided by Sun Pac' && (
+                              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-white/5 border border-white/10 shrink-0">
+                                  <Trees size={10} className="text-gray-500" />
+                                  <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                                      {formData.species}
+                                  </span>
+                              </div>
+                          )}
+
+                          {/* ISPM Tag */}
+                          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-sm shrink-0 border transition-colors ${formData.heatTreated ? 'bg-[#FFEA05]/10 border-[#FFEA05]/20' : 'bg-white/5 border-white/10'}`}>
+                              <ThermometerSun size={10} className={formData.heatTreated ? 'text-[#FFEA05]' : 'text-gray-500'} />
+                              <span className={`text-[9px] font-bold uppercase tracking-wider ${formData.heatTreated ? 'text-[#FFEA05]' : 'text-gray-400'}`}>
+                                  {formData.heatTreated ? 'ISPM-15' : 'No HT'}
+                              </span>
+                          </div>
+                      </div>
+                      <button 
+                          onClick={() => setStep(1)}
+                          className="text-[9px] font-bold text-gray-500 hover:text-[#FFEA05] transition-colors flex items-center gap-1 group"
+                      >
+                          <span>EDIT</span>
+                          <Settings size={10} className="group-hover:rotate-45 transition-transform" />
+                      </button>
+                  </div>
+              )}
+
               {/* Body - Removed overflow-y-auto to stop scroll logic on Final Page */}
               <div className="w-full p-6 relative z-10">
                 {step === 1 && (
                   <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-                    <label className="text-[10px] font-bold text-[#FFEA05] uppercase tracking-wider block">01. Service Scope</label>
+                    <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-bold text-[#FFEA05] uppercase tracking-wider block">01. Service Scope & Wood Supply</label>
+                        
+                        {/* ISPM-15 Toggle */}
+                        <button 
+                            onClick={() => setFormData({...formData, heatTreated: !formData.heatTreated})}
+                            className={`flex items-center gap-2 px-2 py-1 rounded-sm border transition-all ${formData.heatTreated ? 'border-[#FFEA05] bg-[#FFEA05]/10 text-[#FFEA05]' : 'border-white/10 bg-transparent text-gray-500 hover:text-gray-300'}`}
+                        >
+                            <ThermometerSun size={12} />
+                            <span className="text-[9px] font-bold uppercase tracking-wider">ISPM-15 Heat Treat</span>
+                            <div className={`w-2 h-2 rounded-full ${formData.heatTreated ? 'bg-[#FFEA05] shadow-[0_0_5px_#ffea05]' : 'bg-gray-700'}`}></div>
+                        </button>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-2">
                       {['Notching', 'Resawing', 'Trimming', '2 or More'].map((service) => (
                         <button key={service} onClick={() => setFormData({...formData, serviceType: service})}
@@ -464,15 +528,43 @@ const WoodCuttingQuoteForm = React.forwardRef(({ isEmbedded = false, onClose, on
                         </button>
                       ))}
                     </div>
-                    <div className="grid grid-cols-2 gap-2 pt-4 border-t border-white/10">
-                      {['Provided by Sun Pac', 'Customer Wood (Labor Only)'].map((src) => (
-                        <button key={src} onClick={() => setFormData({...formData, materialSource: src})}
-                          className={`p-3 rounded-sm text-left border flex items-center gap-2 transition-all ${formData.materialSource === src ? 'border-[#FFEA05] bg-[#FFEA05]/10 text-white' : 'border-white/10 bg-[#111] text-gray-400'}`}>
-                          <div className={`w-3 h-3 rounded-full border border-[#FFEA05] ${formData.materialSource === src ? 'bg-[#FFEA05]' : ''}`}></div>
-                          <span className="text-xs font-bold">{src === 'Provided by Sun Pac' ? 'Sun Pac Supplies' : 'Customer Wood'}</span>
-                        </button>
-                      ))}
+                    
+                    <div className="pt-4 border-t border-white/10">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2">Wood Supplied By:</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {['Provided by Sun Pac', 'Customer Wood (Labor Only)'].map((src) => (
+                          <button key={src} onClick={() => setFormData({...formData, materialSource: src})}
+                            className={`p-3 rounded-sm text-left border flex items-center gap-2 transition-all ${formData.materialSource === src ? 'border-[#FFEA05] bg-[#FFEA05]/10 text-white' : 'border-white/10 bg-[#111] text-gray-400'}`}>
+                            <div className={`w-3 h-3 rounded-full border border-[#FFEA05] ${formData.materialSource === src ? 'bg-[#FFEA05]' : ''}`}></div>
+                            <span className="text-xs font-bold">{src === 'Provided by Sun Pac' ? 'Sun Pac Supplies' : 'Customer Wood'}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
+
+                    {/* Wood Species Dropdown (Restored) */}
+                    {formData.materialSource === 'Provided by Sun Pac' && (
+                        <div className="pt-2 animate-in fade-in slide-in-from-top-1">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Wood Species</label>
+                            <div className="relative">
+                                <select 
+                                    className="w-full bg-[#111] border border-white/10 text-white text-sm rounded-sm p-3 appearance-none focus:border-[#FFEA05] focus:outline-none cursor-pointer hover:border-[#FFEA05]/50 transition-colors"
+                                    value={formData.species}
+                                    onChange={(e) => setFormData({...formData, species: e.target.value})}
+                                >
+                                    <option value="SPF">Spruce-Pine-Fir (SPF)</option>
+                                    <option value="SYP">Southern Yellow Pine (SYP)</option>
+                                    <option value="Greenwood">Greenwood (Not Kiln Dried)</option>
+                                    <option value="Hardwood">Hardwood</option>
+                                    <option value="Plywood">Plywood / OSB</option>
+                                    <option value="Any">Any / Mix</option>
+                                </select>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                                    <ChevronDown size={14} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                   </div>
                 )}
 
@@ -503,6 +595,50 @@ const WoodCuttingQuoteForm = React.forwardRef(({ isEmbedded = false, onClose, on
                       <input type="email" placeholder="Email" className="input-compact" value={formData.contact.email} onChange={(e) => setFormData({...formData, contact: {...formData.contact, email: e.target.value}})} />
                       <input type="tel" placeholder="Phone" className="input-compact" value={formData.contact.phone} onChange={(e) => setFormData({...formData, contact: {...formData.contact, phone: e.target.value}})} />
                     </div>
+
+                    {/* Notes & Files */}
+                    <div>
+                      <label className="text-[10px] font-bold text-[#FFEA05] uppercase tracking-wider block mb-2 px-1">Notes & Files</label>
+                      <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-3">
+                        <div className="relative">
+                            <textarea 
+                              placeholder="Special instructions, moisture content, etc." 
+                              rows={4} 
+                              maxLength={500}
+                              value={formData.notes}
+                              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                              className="w-full h-full bg-[#0F0F0F] border border-white/20 text-white text-sm rounded-sm p-3 focus:border-[#FFEA05] focus:bg-black focus:outline-none focus:shadow-[0_0_15px_rgba(255,234,5,0.1)] hover:border-white/40 placeholder:text-gray-600 resize-none pb-6 transition-all duration-300" 
+                            />
+                            <div className="absolute bottom-2 right-2 text-[9px] font-mono text-gray-500">
+                                {formData.notes.length}/500
+                            </div>
+                        </div>
+                        
+                        <button 
+                          className={`w-full border border-dashed rounded-sm p-2 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 group focus:outline-none focus:border-[#FFEA05] focus:ring-1 focus:ring-[#FFEA05]/50 relative overflow-hidden h-full min-h-[100px] ${formData.fileName ? 'border-[#FFEA05] bg-[#FFEA05]/5' : 'border-gray-700 hover:border-[#FFEA05] bg-[#0A0A0A] hover:bg-white/5'}`}
+                          onClick={() => setFormData({...formData, fileName: 'specs_v1.pdf'})}
+                          aria-label={formData.fileName ? `File uploaded: ${formData.fileName}` : 'Upload Spec Sheet'}
+                        >
+                           {/* Shimmer Effect */}
+                           {!formData.fileName && (
+                               <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"></div>
+                           )}
+
+                           <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${formData.fileName ? 'bg-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.4)] scale-110' : 'bg-white/5 group-hover:bg-[#FFEA05] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(255,234,5,0.3)]'}`}>
+                              <Upload size={18} className={`transition-colors duration-300 ${formData.fileName ? 'text-black' : 'text-gray-400 group-hover:text-black'}`} />
+                           </div>
+                           
+                           <div className="flex flex-col items-center relative z-10 w-full px-2 text-center">
+                              <span className={`text-[10px] font-bold transition-colors truncate w-full ${formData.fileName ? 'text-[#FFEA05]' : 'text-gray-300 group-hover:text-white'}`}>
+                                 {formData.fileName || 'Upload Specs'}
+                              </span>
+                              <span className="text-[8px] text-gray-500 uppercase tracking-wider font-medium">
+                                 {formData.fileName ? 'Change File' : 'PDF / Images'}
+                              </span>
+                           </div>
+                        </button>
+                      </div>
+                   </div>
                   </div>
                 )}
 
@@ -604,12 +740,35 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
     }
   };
 
-  // Business hours status
-  const now = new Date();
-  const day = now.getDay();
-  const hour = now.getHours();
-  const isOpen = day >= 1 && day <= 6 && hour >= 7 && hour < 16;
-  const status = { isOpen, text: isOpen ? 'ACCEPTING ORDERS' : 'CLOSED' };
+  // Real-time Operation Status Logic (matching Home Page)
+  const [status, setStatus] = useState({ isOpen: false, text: 'LOADING...' });
+  
+  useEffect(() => {
+    const checkStatus = () => {
+      const now = new Date();
+      const day = now.getDay(); // 0 = Sun, 6 = Sat
+      const hour = now.getHours();
+      
+      // Mon(1) - Sat(6), 7am - 4pm (16:00)
+      const isOpenDay = day >= 1 && day <= 6;
+      const isOpenHour = hour >= 7 && hour < 16;
+      
+      if (isOpenDay && isOpenHour) {
+        setStatus({ isOpen: true, text: "ONLINE" });
+      } else {
+        // Determine next opening
+        let nextDay = "TOMORROW";
+        if (day === 6 && hour >= 16) nextDay = "MONDAY"; // Sat after close -> Mon
+        if (day === 0) nextDay = "MONDAY"; // Sun -> Mon
+        
+        setStatus({ isOpen: false, text: `OFFLINE • OPENS ${nextDay} 7AM` });
+      }
+    };
+    
+    checkStatus();
+    const interval = setInterval(checkStatus, 60000); // Update every min
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <footer id="contact" className="bg-[#080808] border-t border-white/10 pt-20 pb-12 relative overflow-hidden">
@@ -618,29 +777,51 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
       <div className="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-12 gap-12">
         
         {/* Column 1: Quick Inquiry Form (Span 5) */}
-        <div className="lg:col-span-5">
-          <div className="bg-[#111] border-l-4 border-[#FFEA05] p-8 shadow-2xl relative overflow-hidden group h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#FFEA05]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <h3 className="font-serif text-2xl text-white mb-2 relative z-10">Quick Inquiry</h3>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-6 relative z-10">Wood Cutting Division</p>
+        <div className="lg:col-span-5" id="contact">
+          <div className="bg-[#111] border-l-4 border-[#FFEA05] p-6 shadow-2xl relative group h-full">
+            {/* Hover Corner Decoration */}
+            <div className="absolute -top-3 -right-3 w-16 h-16 border-t-2 border-r-2 border-[#FFEA05]/20 rounded-tr-xl group-hover:border-[#FFEA05] transition-colors duration-500"></div>
+            
+            <div className="mb-6">
+              <h3 className="text-2xl font-serif text-white tracking-tight">Quick Inquiry</h3>
+              <p className="text-gray-500 text-xs mt-1">Direct channel to milling division support.</p>
+            </div>
 
-            <form className="space-y-4 relative z-10">
+            <form className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <input type="text" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none placeholder-gray-600 text-sm" placeholder="NAME" />
-                <input type="email" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none placeholder-gray-600 text-sm" placeholder="EMAIL" />
+                <div>
+                  <input type="text" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors rounded-none placeholder-gray-600 text-sm" placeholder="NAME" />
+                </div>
+                <div>
+                  <input type="email" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors rounded-none placeholder-gray-600 text-sm" placeholder="EMAIL" />
+                </div>
               </div>
+              
+              {/* Company Field */}
+              <input type="text" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors rounded-none placeholder-gray-600 text-sm" placeholder="COMPANY" />
               
               <div className="relative">
                 {isCustomSubject ? (
-                  <div className="flex items-center gap-2">
-                    <input type="text" value={customSubjectValue} onChange={(e) => setCustomSubjectValue(e.target.value)} className="flex-1 bg-[#050505] border border-[#FFEA05] text-white px-3 py-2.5 focus:outline-none text-sm" placeholder="TYPE YOUR SUBJECT..." autoFocus />
-                    <button type="button" onClick={() => { setIsCustomSubject(false); setCustomSubjectValue(''); }} className="p-2.5 bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors">
-                      <X size={16} />
+                  <div className="relative animate-in fade-in zoom-in-95 duration-200">
+                    <input 
+                      type="text" 
+                      className="w-full bg-[#050505] border border-[#FFEA05] text-white px-3 py-2.5 focus:outline-none rounded-none placeholder-gray-500"
+                      placeholder="Type specific subject..."
+                      value={customSubjectValue}
+                      onChange={(e) => setCustomSubjectValue(e.target.value)}
+                      autoFocus
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => { setIsCustomSubject(false); setCustomSubjectValue(''); }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#FFEA05]"
+                    >
+                      <X size={14} />
                     </button>
                   </div>
                 ) : (
                   <div className="relative">
-                    <select className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none appearance-none text-gray-300 cursor-pointer text-sm" onChange={handleSubjectChange} defaultValue="">
+                    <select className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors appearance-none rounded-none text-gray-300 cursor-pointer text-sm" onChange={handleSubjectChange} defaultValue="">
                       <option value="" disabled>SELECT SUBJECT...</option>
                       <option value="cutting">Wood Cutting Inquiry</option>
                       <option value="quote">Custom Quote Request</option>
@@ -648,15 +829,22 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
                       <option value="custom" className="text-[#FFEA05] font-bold">» Custom (Type your own)</option>
                     </select>
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                      <ChevronDown size={12} />
+                      <ArrowRight size={12} className="rotate-90" />
                     </div>
                   </div>
                 )}
               </div>
 
-              <textarea rows={3} className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none resize-none placeholder-gray-600 text-sm" placeholder="MESSAGE DETAILS..."></textarea>
+              <textarea rows={3} className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors resize-none rounded-none placeholder-gray-600 text-base md:text-sm" placeholder="MESSAGE DETAILS..."></textarea>
 
-              <button className="w-full bg-[#FFEA05] hover:bg-[#ebd700] text-black font-black uppercase tracking-[0.1em] py-3 text-xs transition-all flex items-center justify-center gap-2">
+              {/* Compact File Upload */}
+              <div className="border border-dashed border-white/10 bg-white/5 py-4 text-center hover:border-[#FFEA05] hover:bg-[#FFEA05]/5 transition-all cursor-pointer">
+                <span className="text-[10px] text-gray-400 uppercase tracking-widest group-hover:text-[#FFEA05] transition-colors flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border border-current flex items-center justify-center rounded-sm">+</div> Attach File
+                </span>
+              </div>
+
+              <button className="w-full bg-[#FFEA05] hover:bg-[#ebd700] text-black font-black uppercase tracking-[0.1em] py-3 text-xs transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_20px_rgba(255,234,5,0.2)]">
                 Send Message
               </button>
             </form>
@@ -800,35 +988,40 @@ const WoodCuttingPage = () => {
       <section className="relative pt-32 pb-16 px-6 overflow-hidden min-h-[90vh] flex items-center">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FFEA05]/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center w-full">
-          <div className="space-y-8 relative z-20">
-            <div className="inline-flex items-center gap-2 border border-[#FFEA05]/30 bg-[#FFEA05]/10 text-[#FFEA05] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest animate-pulse-shadow">
-              <span className="w-2 h-2 bg-[#FFEA05] rounded-full animate-pulse"></span>
-              Precision Milling Division
+          <div className="space-y-6 md:space-y-8 relative z-20">
+            {/* Dynamic Badge with auto-updating month/year */}
+            <div className="inline-flex items-center gap-2 border border-[#FFEA05]/30 bg-[#FFEA05]/10 text-[#FFEA05] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(255,234,5,0.1)] backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700 animate-[pulse-shadow_3s_infinite]">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFEA05] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FFEA05]"></span>
+              </span>
+              Now Accepting New Customers for {new Date().toLocaleString('en-US', { month: 'long' })}, {new Date().getFullYear()}
             </div>
-            <h1 className="text-5xl md:text-7xl font-black text-white leading-[0.9] tracking-tight">
-              <span className="font-serif italic font-light opacity-80 block mb-2 text-gray-300">Custom</span>
-              <span className="uppercase">Wood<br/>Processing.</span>
+            <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] md:leading-[0.85] tracking-tight animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200 fill-mode-both">
+              <span className="font-serif italic font-light opacity-80 block mb-2 text-gray-300 transform -translate-x-1">Precision</span>
+              <span className="font-sans uppercase">Wood<br/>Processing.</span>
             </h1>
-            <p className="text-gray-400 text-xl max-w-lg leading-relaxed border-l-[3px] border-[#FFEA05] pl-8">
-              From rough lumber to precision components.<br/>
-              <span className="text-white font-bold">0.01mm accuracy. 50k bd.ft daily capacity.</span>
+            <p className="text-gray-400 text-xl max-w-lg leading-relaxed border-l-[3px] border-[#FFEA05] pl-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 fill-mode-both sm:text-lg">
+              We mill custom lumber components for industrial applications.<br/>
+              <span className="text-white font-bold tracking-tight mt-2 block">Precision cuts. No waste. No compromises.</span>
             </p>
-            <div className="flex flex-wrap gap-6">
+            <div className="flex flex-wrap gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700 fill-mode-both relative">
               <button 
                 onClick={handleRequestQuote} 
                 className="bg-[#FFEA05] text-black px-10 py-5 rounded-sm font-black text-sm uppercase tracking-[0.2em] hover:bg-white hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,234,5,0.2)] flex items-center gap-3 group relative overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-3">
-                  Start Milling Quote <ArrowRight className="group-hover:translate-x-2 transition-transform duration-300" size={20} />
+                  Request Quote <ArrowRight className="group-hover:translate-x-2 transition-transform duration-300" size={20} />
                 </span>
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
               </button>
               
               <a 
                 href="#services" 
-                className="border border-white/20 hover:border-[#FFEA05] text-white px-10 py-5 rounded-sm font-black text-sm uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center gap-3 group backdrop-blur-md"
+                className="border border-white/20 hover:border-[#FFEA05] text-white px-10 py-5 rounded-sm font-black text-sm uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center gap-3 group backdrop-blur-md relative overflow-hidden active:scale-95"
               >
-                View Capabilities <ChevronRight className="group-hover:translate-x-1 transition-transform" size={20} />
+                <ChevronDown className="text-[#FFEA05] group-hover:translate-y-1 transition-transform duration-500" size={24} />
+                View Capabilities
               </a>
             </div>
           </div>
