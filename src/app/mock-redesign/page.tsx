@@ -1760,7 +1760,7 @@ export default function MockRedesignPage() {
                   </span>
                   <span className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 bg-[#FFEA05] rounded-full"></div>
-                      0.01mm Tolerance
+                      Smart Design
                   </span>
               </div>
           </div>
