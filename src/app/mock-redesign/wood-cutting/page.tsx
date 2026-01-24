@@ -947,8 +947,9 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
 
       {/* Footer Bottom Line */}
       <div className="max-w-7xl mx-auto px-6 mt-16 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-zinc-600 font-mono uppercase">
-        <div>
-          Sun Pac Pallets Inc. © 2026 // Wood Cutting Division
+        <div className="flex items-center gap-3 opacity-50 hover:opacity-100 transition-opacity">
+          <img src="/images/cwpca-logo.png" alt="CWPCA" className="h-6 w-auto grayscale" />
+          <span>Sun Pac Pallets Inc. © 2026 // Wood Cutting Division</span>
         </div>
         <div className="flex gap-8">
           <a href="#" className="hover:text-zinc-400 transition-colors">Privacy Protocol</a>
@@ -1042,6 +1043,30 @@ const WoodCuttingPage = () => {
           </div>
         </div>
         {isQuoteActive && <div className="fixed inset-0 z-40 bg-black/90 backdrop-blur-sm" onClick={() => { calculatorRef.current?.close(); setIsQuoteActive(false); }}></div>}
+      </section>
+
+      {/* Trust Banner (CWPCA) */}
+      <section className="w-full bg-[#0A0A0A] border-b border-[#FFEA05]/10 py-5 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300 fill-mode-both">
+          <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 opacity-80 hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-4 group cursor-default">
+                  <img src="/images/cwpca-logo.png" alt="CWPCA Member" className="h-10 w-auto filter grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" />
+                  <div className="text-left leading-none">
+                      <span className="block text-[#FFEA05] font-bold text-[10px] uppercase tracking-widest mb-1">Verified Member</span>
+                      <span className="block text-gray-500 font-mono text-[9px] tracking-wider">Canadian Wood Pallet & Container Assn.</span>
+                  </div>
+              </div>
+              <div className="hidden sm:block h-8 w-[1px] bg-white/10"></div>
+              <div className="flex items-center gap-8 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
+                  <span className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-[#FFEA05] rounded-full animate-pulse"></div>
+                      ISPM-15 Certified
+                  </span>
+                  <span className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-[#FFEA05] rounded-full"></div>
+                      0.01mm Tolerance
+                  </span>
+              </div>
+          </div>
       </section>
 
       {/* Service Grid */}
