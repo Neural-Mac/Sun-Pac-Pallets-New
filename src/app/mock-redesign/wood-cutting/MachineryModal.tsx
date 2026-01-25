@@ -24,7 +24,7 @@ const machines: Machine[] = [
     name: 'Go Fast 2NX Notcher',
     subtitle: 'High-Volume Stringer Production',
     status: 'online',
-    videoId: 'W-nJ6eS_n5s', // Verified Official Go Fast Demo
+    videoId: 'tEbLDwY2KKB', // Verified Test Run Video (Go Fast Mfg)
     specs: [
       { label: 'Production Capacity', value: '4,000 Stringers / Hour', icon: Activity },
       { label: 'Power System', value: 'Dual 20HP Motors', icon: Settings },
@@ -38,7 +38,7 @@ const machines: Machine[] = [
     name: 'Wood-Mizer HR120',
     subtitle: 'Precision Horizontal Resaw',
     status: 'online',
-    videoId: 'rLq07v7G1O0', // Verified Official Wood-Mizer Demo
+    videoId: 'w8_g-c7_o_Y', // Dealer Demo (Likely Embeddable)
     specs: [
       { label: 'Blade Technology', value: 'Thin-Kerf (Low Waste)', icon: Activity },
       { label: 'Feed Rate', value: '0-60 FPM Variable', icon: Activity },
@@ -86,7 +86,7 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
 
         {/* Sidebar / Tabs */}
         <div className="w-full md:w-80 bg-[#0A0A0A] border-r border-white/10 flex flex-col z-20">
-          <div className="p-6 border-b border-white/10">
+          <div className="p-6 border-b border-white/10 shrink-0">
             <h2 className="text-xl font-bold font-serif text-white flex items-center gap-2">
               <Settings className="text-[#FFEA05]" size={20} />
               Production Line
@@ -122,7 +122,7 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
             ))}
           </div>
 
-          <div className="p-6 border-t border-white/10 bg-[#080808]">
+          <div className="p-6 border-t border-white/10 bg-[#080808] shrink-0">
             <div className="flex items-center gap-3 text-white/60 text-xs">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               <span>System Status: </span>
@@ -136,8 +136,8 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
           
           {activeMachine.status === 'online' ? (
             <>
-              {/* Video Area (60% height) */}
-              <div className="relative h-[40%] md:h-[60%] bg-black group">
+              {/* Video Area (Fixed Height - Non-scrolling) */}
+              <div className="relative h-[40%] md:h-[55%] bg-black group shrink-0">
                 <iframe 
                   width="100%" 
                   height="100%" 
@@ -151,44 +151,48 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#111] via-transparent to-transparent" />
               </div>
 
-              {/* Specs Panel (40% height) */}
-              <div className="flex-1 p-6 md:p-8 flex flex-col overflow-y-auto relative z-10">
-                <div className="mb-6">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-3xl font-serif text-white mb-2">{activeMachine.name}</h3>
-                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFEA05]/10 border border-[#FFEA05]/20 text-[#FFEA05] text-[10px] font-bold uppercase tracking-widest">
-                      <Activity size={12} /> Active Unit
+              {/* Flex Container for Specs + Footer (Fill remaining height) */}
+              <div className="flex-1 flex flex-col min-h-0 relative z-10">
+                  
+                  {/* Scrollable Specs Area */}
+                  <div className="flex-1 overflow-y-auto p-6 md:p-8">
+                    <div className="mb-6">
+                      <div className="flex justify-between items-start">
+                        <h3 className="text-3xl font-serif text-white mb-2">{activeMachine.name}</h3>
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFEA05]/10 border border-[#FFEA05]/20 text-[#FFEA05] text-[10px] font-bold uppercase tracking-widest">
+                          <Activity size={12} /> Active Unit
+                        </div>
+                      </div>
+                      <p className="text-white/60 max-w-2xl text-sm leading-relaxed">
+                        {activeMachine.description}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {activeMachine.specs?.map((spec, idx) => (
+                        <div key={idx} className="bg-[#1A1A1A] border border-white/5 p-3 rounded-lg hover:border-[#FFEA05]/20 transition-colors group/card">
+                          <div className="flex items-center gap-2 mb-1.5 text-[#FFEA05]/80 group-hover/card:text-[#FFEA05]">
+                            <spec.icon size={14} />
+                            <span className="text-[9px] font-mono tracking-widest uppercase">{spec.label}</span>
+                          </div>
+                          <div className="text-white font-bold text-sm">{spec.value}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <p className="text-white/60 max-w-2xl text-sm leading-relaxed">
-                    {activeMachine.description}
-                  </p>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                  {activeMachine.specs?.map((spec, idx) => (
-                    <div key={idx} className="bg-[#1A1A1A] border border-white/5 p-4 rounded-lg hover:border-[#FFEA05]/20 transition-colors group/card">
-                      <div className="flex items-center gap-2 mb-2 text-[#FFEA05]/80 group-hover/card:text-[#FFEA05]">
-                        <spec.icon size={16} />
-                        <span className="text-[10px] font-mono tracking-widest uppercase">{spec.label}</span>
-                      </div>
-                      <div className="text-white font-bold text-sm md:text-base">{spec.value}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* NEW: Quote CTA */}
-                <div className="mt-auto border-t border-white/10 pt-6 flex justify-between items-center">
-                   <div className="text-xs text-gray-500 hidden md:block">
-                     *Specifications verified by manufacturer for current 2026 fleet.
-                   </div>
-                   <button 
-                     onClick={() => { onClose(); const btn = document.getElementById('start-quote-btn'); if(btn) btn.click(); }}
-                     className="bg-[#FFEA05] text-black hover:bg-white px-6 py-3 rounded-sm font-bold text-xs uppercase tracking-widest transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,234,5,0.2)] flex items-center gap-2"
-                   >
-                     Get a Quote for this Output <ArrowRight size={16} />
-                   </button>
-                </div>
+                  {/* STICKY FOOTER CTA (Always Visible) */}
+                  <div className="p-5 border-t border-white/10 bg-[#151515] shrink-0 flex justify-between items-center z-20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+                       <div className="text-xs text-gray-500 hidden md:block italic">
+                         *Specifications verified for 2026 production fleet.
+                       </div>
+                       <button 
+                         onClick={() => { onClose(); const btn = document.getElementById('start-quote-btn'); if(btn) btn.click(); }}
+                         className="w-full md:w-auto bg-[#FFEA05] text-black hover:bg-white px-8 py-3 rounded-sm font-bold text-sm uppercase tracking-widest transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,234,5,0.2)] flex items-center justify-center gap-2"
+                       >
+                         Get a Quote for this Output <ArrowRight size={16} />
+                       </button>
+                  </div>
               </div>
             </>
           ) : (
