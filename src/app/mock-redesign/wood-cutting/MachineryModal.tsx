@@ -24,7 +24,7 @@ const machines: Machine[] = [
     name: 'Go Fast 2NX Notcher',
     subtitle: 'High-Volume Stringer Production',
     status: 'online',
-    videoId: 'GPMRSiZ2k3k', // "2NX w/ Waste Conveyors" - Likely embeddable
+    videoId: 'D6Df3m_bwU4', // Verified by User
     specs: [
       { label: 'Production Capacity', value: '4,000 Stringers / Hour', icon: Activity },
       { label: 'Power System', value: 'Dual 20HP Motors', icon: Settings },
@@ -136,17 +136,18 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
           
           {activeMachine.status === 'online' ? (
             <>
-              {/* Video Area (Fixed Height) */}
+              {/* Video Area (Fixed Height - Clean Embed) */}
               <div className="relative h-[40%] md:h-[55%] bg-black group shrink-0">
                 <iframe 
                   width="100%" 
                   height="100%" 
-                  src={`https://www.youtube.com/embed/${activeMachine.videoId}?autoplay=1&mute=1&rel=0&loop=1&playlist=${activeMachine.videoId}&modestbranding=1`}
+                  src={`https://www.youtube.com/embed/${activeMachine.videoId}?rel=0&modestbranding=1`}
                   title={activeMachine.name}
+                  id="machinery-video-player"
                   frameBorder="0" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowFullScreen
-                  className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                  className="absolute inset-0 w-full h-full object-cover z-10"
                 />
                  {/* Fallback Text Overlay (Visible briefly or if failing, but mostly obscure) */}
                  <div className="absolute bottom-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
