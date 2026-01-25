@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, PlayCircle, Settings, Box, Activity, CheckCircle2, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { X, PlayCircle, Settings, Box, Activity, CheckCircle2, Lock, ArrowRight, AlertCircle, ExternalLink } from 'lucide-react';
 
 interface MachineryModalProps {
   isOpen: boolean;
@@ -24,7 +24,7 @@ const machines: Machine[] = [
     name: 'Go Fast 2NX Notcher',
     subtitle: 'High-Volume Stringer Production',
     status: 'online',
-    videoId: 'tEbLDwY2KKB', // Verified Test Run Video (Go Fast Mfg)
+    videoId: 'GPMRSiZ2k3k', // "2NX w/ Waste Conveyors" - Likely embeddable
     specs: [
       { label: 'Production Capacity', value: '4,000 Stringers / Hour', icon: Activity },
       { label: 'Power System', value: 'Dual 20HP Motors', icon: Settings },
@@ -38,7 +38,7 @@ const machines: Machine[] = [
     name: 'Wood-Mizer HR120',
     subtitle: 'Precision Horizontal Resaw',
     status: 'online',
-    videoId: 'w8_g-c7_o_Y', // Dealer Demo (Likely Embeddable)
+    videoId: '03IKdqVElTH', // Wood-Mizer Product Demo 
     specs: [
       { label: 'Blade Technology', value: 'Thin-Kerf (Low Waste)', icon: Activity },
       { label: 'Feed Rate', value: '0-60 FPM Variable', icon: Activity },
@@ -136,7 +136,7 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
           
           {activeMachine.status === 'online' ? (
             <>
-              {/* Video Area (Fixed Height - Non-scrolling) */}
+              {/* Video Area (Fixed Height) */}
               <div className="relative h-[40%] md:h-[55%] bg-black group shrink-0">
                 <iframe 
                   width="100%" 
@@ -148,10 +148,21 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
                   allowFullScreen
                   className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
                 />
+                 {/* Fallback Text Overlay (Visible briefly or if failing, but mostly obscure) */}
+                 <div className="absolute bottom-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <a 
+                      href={`https://www.youtube.com/watch?v=${activeMachine.videoId}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="bg-black/80 hover:bg-[#FF0000] text-white text-[10px] font-bold uppercase px-3 py-1.5 rounded flex items-center gap-2 backdrop-blur-sm transition-colors"
+                    >
+                      <ExternalLink size={10} /> Video Unavailable? Watch on YouTube
+                    </a>
+                 </div>
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#111] via-transparent to-transparent" />
               </div>
 
-              {/* Flex Container for Specs + Footer (Fill remaining height) */}
+              {/* Flex Container for Specs + Footer */}
               <div className="flex-1 flex flex-col min-h-0 relative z-10">
                   
                   {/* Scrollable Specs Area */}
