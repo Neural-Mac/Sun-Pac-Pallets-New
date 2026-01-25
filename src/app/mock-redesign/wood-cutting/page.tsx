@@ -400,6 +400,7 @@ const WoodCuttingQuoteForm = React.forwardRef(({ isEmbedded = false, onClose, on
            </div>
 
            <button 
+             id="start-quote-btn"
              onClick={(e) => { e.stopPropagation(); setStarted(true); onOpen?.(); }}
              className="mt-2 bg-[#ffea05] text-black px-8 py-3.5 rounded-sm font-bold text-sm uppercase tracking-wider hover:bg-white hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,234,5,0.3)] flex items-center gap-2"
            >

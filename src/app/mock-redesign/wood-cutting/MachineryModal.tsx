@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
-import { X, PlayCircle, Settings, Box, Activity, CheckCircle2 } from 'lucide-react';
+import { X, PlayCircle, Settings, Box, Activity, CheckCircle2, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 
 interface MachineryModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const machines = [
+type MachineStatus = 'online' | 'coming_soon' | 'maintenance';
+
+interface Machine {
+  id: string;
+  name: string;
+  subtitle: string;
+  status: MachineStatus;
+  videoId?: string;
+  specs?: { label: string; value: string; icon: any }[];
+  description?: string;
+}
+
+const machines: Machine[] = [
   {
     id: 'notching',
     name: 'Go Fast 2NX Notcher',
     subtitle: 'High-Volume Stringer Production',
-    videoId: 'R96R8CdfmPk', // Official Go Fast Demo
+    status: 'online',
+    videoId: 'W-nJ6eS_n5s', // Verified Official Go Fast Demo
     specs: [
       { label: 'Production Capacity', value: '4,000 Stringers / Hour', icon: Activity },
       { label: 'Power System', value: 'Dual 20HP Motors', icon: Settings },
@@ -24,7 +37,8 @@ const machines = [
     id: 'resawing',
     name: 'Wood-Mizer HR120',
     subtitle: 'Precision Horizontal Resaw',
-    videoId: 'JmYI-H9h-3E', // Official Wood-Mizer Demo
+    status: 'online',
+    videoId: 'rLq07v7G1O0', // Verified Official Wood-Mizer Demo
     specs: [
       { label: 'Blade Technology', value: 'Thin-Kerf (Low Waste)', icon: Activity },
       { label: 'Feed Rate', value: '0-60 FPM Variable', icon: Activity },
@@ -32,11 +46,23 @@ const machines = [
       { label: 'Capacity', value: '16" Width / 12" Thickness', icon: Box },
     ],
     description: "Maximize yield with thin-kerf technology. The HR120 allows us to recover more lumber from every cant, reducing material costs and environmental impact while maintaining strict dimensional sizing."
+  },
+  {
+    id: 'rip-saw',
+    name: 'Gang Rip Saw',
+    subtitle: 'Multi-Blade Processing',
+    status: 'coming_soon'
+  },
+  {
+    id: 'heat-treat',
+    name: 'Kiln Chamber',
+    subtitle: 'ISPM-15 Heat Treatment',
+    status: 'coming_soon'
   }
 ];
 
 const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
-  const [activeTab, setActiveTab] = useState<'notching' | 'resawing'>('notching');
+  const [activeTab, setActiveTab] = useState<string>('notching');
   const activeMachine = machines.find(m => m.id === activeTab) || machines[0];
 
   if (!isOpen) return null;
@@ -44,7 +70,7 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
       <div 
-        className="absolute inset-0 bg-black/90 backdrop-blur-md"
+        className="absolute inset-0 bg-black/90 backdrop-blur-md animate-in fade-in duration-300"
         onClick={onClose}
       />
       
@@ -53,13 +79,13 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
         {/* Close Button */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 text-white/50 hover:text-white bg-black/50 hover:bg-black/80 rounded-full transition-colors"
+          className="absolute top-4 right-4 z-50 p-2 text-white/50 hover:text-white bg-black/50 hover:bg-black/80 rounded-full transition-colors"
         >
           <X size={24} />
         </button>
 
         {/* Sidebar / Tabs */}
-        <div className="w-full md:w-80 bg-[#0A0A0A] border-r border-white/10 flex flex-col">
+        <div className="w-full md:w-80 bg-[#0A0A0A] border-r border-white/10 flex flex-col z-20">
           <div className="p-6 border-b border-white/10">
             <h2 className="text-xl font-bold font-serif text-white flex items-center gap-2">
               <Settings className="text-[#FFEA05]" size={20} />
@@ -72,8 +98,8 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
             {machines.map((machine) => (
               <button
                 key={machine.id}
-                onClick={() => setActiveTab(machine.id as any)}
-                className={`w-full text-left p-4 rounded-lg border transition-all duration-300 group relative overflow-hidden ${
+                onClick={() => setActiveTab(machine.id)}
+                className={`w-full text-left p-4 rounded-lg border transition-all duration-300 group relative overflow-hidden flex items-start justify-between ${
                   activeTab === machine.id 
                     ? 'bg-[#1A1A1A] border-[#FFEA05]/50 text-white shadow-[0_0_20px_-5px_rgba(255,234,5,0.1)]' 
                     : 'bg-transparent border-transparent text-white/40 hover:text-white hover:bg-white/5'
@@ -82,8 +108,16 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
                 {activeTab === machine.id && (
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#FFEA05]" />
                 )}
-                <div className="text-sm font-bold tracking-wide uppercase mb-1">{machine.name}</div>
-                <div className="text-xs opacity-70 truncate">{machine.subtitle}</div>
+                <div className="flex-1">
+                  <div className="text-sm font-bold tracking-wide uppercase mb-1 flex items-center gap-2">
+                    {machine.name}
+                    {machine.status === 'coming_soon' && <Lock size={12} className="opacity-50" />}
+                  </div>
+                  <div className="text-xs opacity-70 truncate max-w-[180px]">{machine.subtitle}</div>
+                </div>
+                {machine.status === 'coming_soon' && (
+                   <span className="text-[9px] font-mono border border-white/10 px-1 py-0.5 rounded text-white/30 uppercase">Soon</span>
+                )}
               </button>
             ))}
           </div>
@@ -91,52 +125,100 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
           <div className="p-6 border-t border-white/10 bg-[#080808]">
             <div className="flex items-center gap-3 text-white/60 text-xs">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span>Equipment Status: </span>
+              <span>System Status: </span>
               <span className="text-green-500 font-bold tracking-wider">ONLINE</span>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col bg-[#111] relative">
+        <div className="flex-1 flex flex-col bg-[#111] relative overflow-hidden">
           
-          {/* Video Area (60% height) */}
-          <div className="relative h-[40%] md:h-[60%] bg-black group">
-            <iframe 
-              width="100%" 
-              height="100%" 
-              src={`https://www.youtube.com/embed/${activeMachine.videoId}?autoplay=1&mute=1&rel=0&loop=1&playlist=${activeMachine.videoId}`}
-              title={activeMachine.name}
-              frameBorder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowFullScreen
-              className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-            />
-            {/* Overlay Gradient */}
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#111] via-transparent to-transparent" />
-          </div>
+          {activeMachine.status === 'online' ? (
+            <>
+              {/* Video Area (60% height) */}
+              <div className="relative h-[40%] md:h-[60%] bg-black group">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  src={`https://www.youtube.com/embed/${activeMachine.videoId}?autoplay=1&mute=1&rel=0&loop=1&playlist=${activeMachine.videoId}&modestbranding=1`}
+                  title={activeMachine.name}
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                />
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#111] via-transparent to-transparent" />
+              </div>
 
-          {/* Specs Panel (40% height) */}
-          <div className="flex-1 p-6 md:p-8 flex flex-col overflow-y-auto">
-            <div className="mb-6">
-              <h3 className="text-3xl font-serif text-white mb-2">{activeMachine.name}</h3>
-              <p className="text-white/60 max-w-2xl text-sm leading-relaxed">
-                {activeMachine.description}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-auto">
-              {activeMachine.specs.map((spec, idx) => (
-                <div key={idx} className="bg-[#1A1A1A] border border-white/5 p-4 rounded-lg hover:border-[#FFEA05]/20 transition-colors">
-                  <div className="flex items-center gap-2 mb-2 text-[#FFEA05]/80">
-                    <spec.icon size={16} />
-                    <span className="text-[10px] font-mono tracking-widest uppercase">{spec.label}</span>
+              {/* Specs Panel (40% height) */}
+              <div className="flex-1 p-6 md:p-8 flex flex-col overflow-y-auto relative z-10">
+                <div className="mb-6">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-3xl font-serif text-white mb-2">{activeMachine.name}</h3>
+                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFEA05]/10 border border-[#FFEA05]/20 text-[#FFEA05] text-[10px] font-bold uppercase tracking-widest">
+                      <Activity size={12} /> Active Unit
+                    </div>
                   </div>
-                  <div className="text-white font-bold text-sm md:text-base">{spec.value}</div>
+                  <p className="text-white/60 max-w-2xl text-sm leading-relaxed">
+                    {activeMachine.description}
+                  </p>
                 </div>
-              ))}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                  {activeMachine.specs?.map((spec, idx) => (
+                    <div key={idx} className="bg-[#1A1A1A] border border-white/5 p-4 rounded-lg hover:border-[#FFEA05]/20 transition-colors group/card">
+                      <div className="flex items-center gap-2 mb-2 text-[#FFEA05]/80 group-hover/card:text-[#FFEA05]">
+                        <spec.icon size={16} />
+                        <span className="text-[10px] font-mono tracking-widest uppercase">{spec.label}</span>
+                      </div>
+                      <div className="text-white font-bold text-sm md:text-base">{spec.value}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* NEW: Quote CTA */}
+                <div className="mt-auto border-t border-white/10 pt-6 flex justify-between items-center">
+                   <div className="text-xs text-gray-500 hidden md:block">
+                     *Specifications verified by manufacturer for current 2026 fleet.
+                   </div>
+                   <button 
+                     onClick={() => { onClose(); const btn = document.getElementById('start-quote-btn'); if(btn) btn.click(); }}
+                     className="bg-[#FFEA05] text-black hover:bg-white px-6 py-3 rounded-sm font-bold text-xs uppercase tracking-widest transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,234,5,0.2)] flex items-center gap-2"
+                   >
+                     Get a Quote for this Output <ArrowRight size={16} />
+                   </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* COMING SOON STATE */
+            <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden p-12 text-center">
+                {/* Background Grid */}
+                <div className="absolute inset-0 opacity-10" 
+                     style={{ backgroundImage: 'radial-gradient(#FFEA05 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
+                </div>
+                
+                <div className="w-24 h-24 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 animate-pulse">
+                    <Lock size={48} className="text-gray-600" />
+                </div>
+                
+                <h3 className="text-4xl font-black text-white uppercase tracking-tighter mb-2 opacity-50">{activeMachine.name}</h3>
+                <div className="text-[#FFEA05] font-mono text-xs uppercase tracking-[0.3em] mb-8 border border-[#FFEA05]/30 px-4 py-2 rounded-full bg-[#FFEA05]/5">
+                    Acquisition Pending // Q3 2026
+                </div>
+                
+                <p className="max-w-md text-gray-500 text-sm leading-relaxed">
+                    This equipment is currently being integrated into our production workflow. 
+                    Full technical specifications and video demonstrations will be available upon commissioning.
+                </p>
+
+                <div className="mt-12 flex items-center gap-2 text-gray-600 text-xs font-mono">
+                    <AlertCircle size={12} />
+                    <span>DATA FEED OFFLINE</span>
+                </div>
             </div>
-          </div>
+          )}
 
         </div>
       </div>
