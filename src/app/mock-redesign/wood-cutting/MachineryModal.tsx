@@ -4,6 +4,7 @@ import { X, PlayCircle, Settings, Box, Activity, CheckCircle2, Lock, ArrowRight,
 interface MachineryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onQuoteRequest?: (machineId: string) => void;
 }
 
 type MachineStatus = 'online' | 'coming_soon' | 'maintenance';
@@ -14,6 +15,8 @@ interface Machine {
   subtitle: string;
   status: MachineStatus;
   videoId?: string;
+  startSeconds?: number;
+  endSeconds?: number;
   specs?: { label: string; value: string; icon: any }[];
   description?: string;
 }
@@ -24,7 +27,7 @@ const machines: Machine[] = [
     name: 'Go Fast 2NX Notcher',
     subtitle: 'High-Volume Stringer Production',
     status: 'online',
-    videoId: 'D6Df3m_bwU4', // Verified by User
+    videoId: 'arl9fg6xj2w', // Verified User Selection
     specs: [
       { label: 'Production Capacity', value: '4,000 Stringers / Hour', icon: Activity },
       { label: 'Power System', value: 'Dual 20HP Motors', icon: Settings },
@@ -38,7 +41,9 @@ const machines: Machine[] = [
     name: 'Wood-Mizer HR120',
     subtitle: 'Precision Horizontal Resaw',
     status: 'online',
-    videoId: '03IKdqVElTH', // Wood-Mizer Product Demo 
+    videoId: 'wZ7FZlUd8LQ', // Verified User Selection
+    startSeconds: 50, // 0:50
+    endSeconds: 138,  // 2:18
     specs: [
       { label: 'Blade Technology', value: 'Thin-Kerf (Low Waste)', icon: Activity },
       { label: 'Feed Rate', value: '0-60 FPM Variable', icon: Activity },
@@ -61,9 +66,17 @@ const machines: Machine[] = [
   }
 ];
 
-const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
+const MachineryModal = ({ isOpen, onClose, onQuoteRequest }: MachineryModalProps) => {
   const [activeTab, setActiveTab] = useState<string>('notching');
   const activeMachine = machines.find(m => m.id === activeTab) || machines[0];
+
+  // Helper to construct properly clipped YouTube URL
+  const getEmbedUrl = (machine: Machine) => {
+     let url = `https://www.youtube.com/embed/${machine.videoId}?rel=0&modestbranding=1`;
+     if (machine.startSeconds) url += `&start=${machine.startSeconds}`;
+     if (machine.endSeconds) url += `&end=${machine.endSeconds}`;
+     return url;
+  };
 
   if (!isOpen) return null;
 
@@ -141,7 +154,7 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
                 <iframe 
                   width="100%" 
                   height="100%" 
-                  src={`https://www.youtube.com/embed/${activeMachine.videoId}?rel=0&modestbranding=1`}
+                  src={getEmbedUrl(activeMachine)}
                   title={activeMachine.name}
                   id="machinery-video-player"
                   frameBorder="0" 
@@ -149,15 +162,15 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
                   allowFullScreen
                   className="absolute inset-0 w-full h-full object-cover z-10"
                 />
-                 {/* Fallback Text Overlay (Visible briefly or if failing, but mostly obscure) */}
-                 <div className="absolute bottom-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                 {/* Non-Blocking Fallback Link (Top Right Corner) */}
+                 <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto">
                     <a 
                       href={`https://www.youtube.com/watch?v=${activeMachine.videoId}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="bg-black/80 hover:bg-[#FF0000] text-white text-[10px] font-bold uppercase px-3 py-1.5 rounded flex items-center gap-2 backdrop-blur-sm transition-colors"
+                      className="bg-black/50 hover:bg-black text-white/50 hover:text-white text-[9px] font-bold uppercase px-2 py-1 rounded flex items-center gap-1 backdrop-blur-sm transition-all"
                     >
-                      <ExternalLink size={10} /> Video Unavailable? Watch on YouTube
+                      <ExternalLink size={10} /> Open in YouTube
                     </a>
                  </div>
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#111] via-transparent to-transparent" />
@@ -199,7 +212,7 @@ const MachineryModal = ({ isOpen, onClose }: MachineryModalProps) => {
                          *Specifications verified for 2026 production fleet.
                        </div>
                        <button 
-                         onClick={() => { onClose(); const btn = document.getElementById('start-quote-btn'); if(btn) btn.click(); }}
+                         onClick={() => { onClose(); onQuoteRequest?.(activeMachine.id); }}
                          className="w-full md:w-auto bg-[#FFEA05] text-black hover:bg-white px-8 py-3 rounded-sm font-bold text-sm uppercase tracking-widest transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,234,5,0.2)] flex items-center justify-center gap-2"
                        >
                          Get a Quote for this Output <ArrowRight size={16} />

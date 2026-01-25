@@ -309,7 +309,10 @@ const WoodCuttingQuoteForm = React.forwardRef(({ isEmbedded = false, onClose, on
   React.useImperativeHandle(ref, () => ({
     start: () => { setStarted(true); onOpen?.(); setStep(1); },
     isStarted: () => started,
-    close: () => { setStarted(false); setStep(1); onClose?.(); }
+    close: () => { setStarted(false); setStep(1); onClose?.(); },
+    selectService: (service: string) => {
+        setFormData(prev => ({ ...prev, serviceType: service }));
+    }
   }));
 
   const generateQuoteId = () => {
@@ -353,11 +356,14 @@ const WoodCuttingQuoteForm = React.forwardRef(({ isEmbedded = false, onClose, on
                         <div 
                             className="w-full h-full animate-[ken-burns_12s_ease-in-out_infinite] group-hover:scale-110 transition-transform duration-700"
                             style={{
-                                backgroundImage: "url('/images/wood-cutting/obsidian-sawmill.png')",
+                                backgroundImage: "url('/images/wood-cutting/quote-idle-bg.png')",
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center',
+                                filter: 'contrast(1.25) brightness(0.6) saturate(0)' // Obsidian Lighting: Dark, High Contrast, Grayscale-ish
                             }}
                         ></div>
+                        {/* Dramatic Gold Lighting Overlay - Obsidian Style */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-black via-transparent to-[#FFEA05]/20 mix-blend-overlay"></div>
                     </div>
                 </div>
             )}
@@ -969,7 +975,7 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
 const WoodCuttingPage = () => {
   const [isQuoteActive, setIsQuoteActive] = useState(false);
   const [isMachineModalOpen, setMachineModalOpen] = useState(false);
-  const calculatorRef = useRef<{ start: () => void; isStarted: () => boolean; close: () => void }>(null);
+  const calculatorRef = useRef<{ start: () => void; isStarted: () => boolean; close: () => void; selectService: (s: string) => void }>(null);
 
   useEffect(() => {
     if (isQuoteActive) document.body.style.overflow = 'hidden';
@@ -981,6 +987,15 @@ const WoodCuttingPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     calculatorRef.current?.start();
     setIsQuoteActive(true);
+  };
+
+  const handleMachineQuoteRequest = (machineId: string) => {
+    let service = 'Notching';
+    if (machineId === 'resawing') service = 'Resawing';
+    // Add more mappings if needed
+    
+    calculatorRef.current?.selectService(service);
+    handleRequestQuote();
   };
 
   return (
@@ -1099,7 +1114,7 @@ const WoodCuttingPage = () => {
 
       <IndustriesSection />
       <Footer onRequestQuote={handleRequestQuote} />
-      <MachineryModal isOpen={isMachineModalOpen} onClose={() => setMachineModalOpen(false)} />
+      <MachineryModal isOpen={isMachineModalOpen} onClose={() => setMachineModalOpen(false)} onQuoteRequest={handleMachineQuoteRequest} />
     </DarkIndustrialTheme>
   );
 };
