@@ -58,10 +58,10 @@ export const IndustrialNavbar = ({
   const scanAnimation = "after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-white/40 after:to-transparent after:translate-x-[-200%] hover:after:translate-x-[200%] after:transition-transform after:duration-[1.5s] overflow-hidden relative";
 
   const services = [
-    { name: "New Pallets", href: "/mock-redesign#" },
-    { name: "Custom Pallets", href: "/mock-redesign#" },
-    { name: "Heat Treated Pallets", href: "/mock-redesign#" },
-    { name: "Wood Cutting", href: "/mock-redesign/wood-cutting" }
+    { name: "New Pallets", href: "/#" },
+    { name: "Custom Pallets", href: "/#" },
+    { name: "Heat Treated Pallets", href: "/#" },
+    { name: "Wood Cutting", href: "/wood-cutting" }
   ];
 
   return (
@@ -71,7 +71,7 @@ export const IndustrialNavbar = ({
           
           {/* LOGO - Industrial Monogram */}
           <a 
-            href="/mock-redesign"
+            href="/"
             className="flex items-center gap-3 md:gap-5 group cursor-pointer relative z-50"
           >
             <div className="relative w-10 h-10 md:w-12 md:h-12 bg-[#FFEA05] rounded-sm flex items-center justify-center shadow-[0_0_20px_rgba(255,234,5,0.15)] group-hover:shadow-[0_0_35px_rgba(255,234,5,0.4)] transition-all duration-500 border border-[#FFEA05]">
@@ -87,7 +87,7 @@ export const IndustrialNavbar = ({
           {/* DESKTOP MENU */}
           <div className="hidden lg:flex items-center gap-12 h-full">
             <a 
-              href="/mock-redesign" 
+              href="/" 
               className={`${navLinkStyle} ${currentPage === 'home' ? 'text-white' : ''}`}
             >
               Home
@@ -153,7 +153,7 @@ export const IndustrialNavbar = ({
           {/* MENU LINKS */}
           <div className="flex flex-col gap-6 items-center">
             <a 
-              href="/mock-redesign" 
+              href="/" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={`text-3xl font-black uppercase tracking-tight hover:text-[#FFEA05] transition-colors ${currentPage === 'home' ? 'text-[#FFEA05]' : 'text-white'}`}
             >

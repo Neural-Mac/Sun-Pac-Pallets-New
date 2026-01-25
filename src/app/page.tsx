@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowRight,
   CheckCircle2,
@@ -23,16 +24,24 @@ import {
   ArrowLeft,
   Sparkles,
   FileText,
+  Mail,
   Upload,
-  Ruler,
-  ClipboardList,
+  Search,
+  ShoppingCart,
+  Loader2,
   Package,
-  Scale,
+  ClipboardList,
   ThermometerSun,
+  Ruler,
+  Utensils,
+  Factory,
+  Pill,
+  Scale,
   Trees,
   ChevronDown
 } from "lucide-react";
-import { ProcessTimeline } from "./mock-redesign/ProcessTimeline";
+import { ProcessTimeline } from "./ProcessTimeline";
+import "./animations.css";
 
 // --- MOCK THEME WRAPPER (DARK INDUSTRIAL) ---
 const DarkIndustrialTheme = ({ children }: { children: React.ReactNode }) => {
@@ -61,9 +70,34 @@ const DarkIndustrialTheme = ({ children }: { children: React.ReactNode }) => {
 };
 
 
+// Custom Pallet Icon for clearer visual distinction
+// Custom Pallet Icon (Redesigned: Clean, Flat, No "Box on Top")
+const PalletIcon = ({ size = 20, className = "" }: { size?: number; className?: string }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Top Deck (3 slats) */}
+    <path d="M2 12h20" />
+    <path d="M2 15h20" />
+    {/* Bottom Deck */}
+    <path d="M2 19h20" />
+    {/* Stringers */}
+    <path d="M5 12v7" />
+    <path d="M12 12v7" />
+    <path d="M19 12v7" />
+  </svg>
+);
 
 // --- CALCULATOR COMPONENT (Ported & Styled) ---
-const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbedded?: boolean }, ref) => {
+const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false, onClose, onOpen }: { isEmbedded?: boolean; onClose?: () => void; onOpen?: () => void }, ref) => {
   const [step, setStep] = useState(1);
   const [started, setStarted] = useState(false); // NEW: Controls Idle vs Wizard state
   const totalSteps = 3;
@@ -97,6 +131,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
   React.useImperativeHandle(ref, () => ({
     start: (isQualified: boolean) => {
       setStarted(true);
+      onOpen?.();
       setStep(1); // Always start at the beginning for a natural flow
       if (isQualified) {
         setFormData(prev => ({ 
@@ -108,13 +143,28 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
       } else {
         setPreQualified(false);
       }
-    }
+    },
+    isStarted: () => started,
+    close: () => { setStarted(false); setStep(1); onClose?.(); }
   }));
   
   const [preQualified, setPreQualified] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+      setMounted(true);
+  }, []);
 
 
   const [showAdvancedSpecs, setShowAdvancedSpecs] = useState(false);
+  const [quoteId, setQuoteId] = useState('');
+
+  // Pro Max Logic: Generate a random "Wood Shop" Quote ID
+  const generateQuoteId = () => {
+    const year = new Date().getFullYear();
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `#SPP-${year}-${random}`;
+  };
 
   const handleNext = () => {
     // Pro Max Logic: Auto-fill if pre-qualified when moving to Step 2
@@ -125,10 +175,19 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
              frequency: '5+', // Assumption for high volume
              includeAudit: true
          }));
-         // Ideally show a toast here, but for now we'll let the UI speak for itself
     }
-    setStep((prev) => Math.min(prev + 1, totalSteps));
+
+    // SUBMISSION LOGIC (Task 18) - FORCE STEP 4
+    if (step === 3) {
+        const newId = generateQuoteId();
+        setQuoteId(newId);
+        setStep(4); 
+    } else {
+        // Standard Navigation
+        setStep((prev) => prev < 3 ? prev + 1 : 4);
+    }
   };
+
   const handleBack = () => setStep((prev) => Math.max(prev - 1, 1));
   const handleTypeChange = (newType: string) => {
       setFormData(prev => ({ ...prev, type: newType }));
@@ -148,12 +207,8 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
   const contentRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState<number | 'auto'>('auto');
 
-  // Fix: Scroll to top of form on step change (Mobile)
-  useEffect(() => {
-      if (step > 1 && contentRef.current) {
-          contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-  }, [step]);
+  // REMOVED: scrollIntoView was causing page push during focus mode
+  // The form now stays fixed in position during step transitions
 
   useEffect(() => {
     if (!contentRef.current) return;
@@ -169,9 +224,9 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
   }, [step, started]);
   
   const loadCategories = [
-    { name: 'Food & Bev', icon: <Leaf size={20} /> },
-    { name: 'Industrial', icon: <Settings size={20} /> },
-    { name: 'Pharma', icon: <ShieldCheck size={20} /> },
+    { name: 'Food & Bev', icon: <Utensils size={20} /> },
+    { name: 'Industrial', icon: <Factory size={20} /> },
+    { name: 'Pharma', icon: <Pill size={20} /> },
     { name: 'Other', icon: <Scale size={20} /> }
   ];
 
@@ -180,7 +235,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
     return (
       <div className="w-full h-full flex items-center justify-center p-4">
         <div 
-            onClick={() => setStarted(true)}
+            onClick={() => { setStarted(true); onOpen?.(); }}
             className={`relative w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-sm transition-all duration-300 ease-out group bg-clip-padding cursor-pointer ${isEmbedded ? 'bg-[#0A0A0A]' : ''} p-12`}
             style={{
                 boxShadow: isEmbedded 
@@ -213,10 +268,10 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                 </div>
             )}
 
-            {/* Scanner Effect - High Frequency on Hover */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {/* Scanner Effect - High Frequency on Hover - REMOVED */}
+            {/* <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute top-0 left-0 w-[50%] h-full bg-gradient-to-r from-transparent via-white/5 group-hover:via-white/20 to-transparent skew-x-12 animate-[shimmer-slow_6s_infinite_linear] group-hover:animate-[shimmer_2s_infinite]"></div>
-            </div>
+            </div> */}
 
             {/* Dark Overlay - Recedes on Hover */}
             <div className="absolute inset-[3px] bg-black/60 backdrop-blur-[2px] transition-all duration-300 group-hover:bg-black/30 z-0 rounded-[1px]"></div>
@@ -226,7 +281,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
            {/* Pulsing Icon */}
            <button 
              className="w-24 h-24 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl relative cursor-pointer hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-[#ffea05] focus:ring-offset-2 focus:ring-offset-black ring-4 ring-[#ffea05]/20 animate-pulse" 
-             onClick={(e) => { e.stopPropagation(); setStarted(true); }}
+             onClick={(e) => { e.stopPropagation(); setStarted(true); onOpen?.(); }}
              aria-label="Start Pallet Configuration"
            >
                 {/* Inner Ring */}
@@ -234,50 +289,103 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                <ClipboardList size={48} className="text-[#ffea05] drop-shadow-[0_0_10px_rgba(255,234,5,0.5)]" />
            </button>
 
-           <div className="space-y-3 max-w-xs mx-auto">
+           <div className="space-y-6 max-w-sm mx-auto">
                <h3 className="font-serif text-3xl font-bold text-white leading-tight drop-shadow-lg">
-                  Build Your <br/> Pallet Quote
+                  Build Your Pallet Quote
                </h3>
-               <p className="font-sans text-sm text-gray-200 font-medium drop-shadow-md leading-relaxed">
-                  Configure specs, load, and quantity in 3 simple steps.
-               </p>
+               <div className="flex flex-col gap-3">
+                   <span className="text-[#FFEA05] text-xs font-bold uppercase tracking-[0.2em] drop-shadow-md">3 Simple Steps</span>
+                   <p className="font-sans text-sm text-gray-200 font-medium drop-shadow-md leading-relaxed flex items-center justify-center gap-3">
+                      <span>Select Specs</span>
+                      <span className="text-[#FFEA05] text-xl font-light">›</span>
+                      <span>Quantity</span>
+                      <span className="text-[#FFEA05] text-xl font-light">›</span>
+                      <span>Submit</span>
+                   </p>
+               </div>
            </div>
 
            <button 
-             onClick={(e) => { e.stopPropagation(); setStarted(true); }}
+             onClick={(e) => { e.stopPropagation(); setStarted(true); onOpen?.(); }}
              className="mt-2 bg-[#ffea05] text-black px-8 py-3.5 rounded-sm font-bold text-sm uppercase tracking-wider hover:bg-white hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,234,5,0.3)] flex items-center gap-2"
            >
-              Start Configuration <ArrowRight size={18} />
+              Start My Quote <ArrowRight size={18} />
            </button>
-        </div>
-      </div>
+          </div>
+
+       </div>         
     </div>
     );
   }
 
-  // WIZARD STATE
-  return (
-    <div 
-        className={`flex flex-col ${isEmbedded ? 'bg-[#121212]/80 backdrop-blur-xl border border-white/10 ring-1 ring-white/5 rounded-sm shadow-[0_20px_50px_-12px_rgba(0,0,0,0.9)] relative overflow-hidden transition-[height] duration-500 ease-in-out' : ''}`}
-        style={{ height: containerHeight }}
-    >
-       <div ref={contentRef} className="flex flex-col">
+  // WIZARD STATE (PORTAL)
+  if (started) {
+      // Placeholder to prevent layout shift in Hero
+      const placeholder = <div className="w-full h-full min-h-[500px] opacity-0 pointer-events-none" />;
+      
+      if (!mounted) return placeholder;
+
+      return (
+        <>
+            {placeholder}
+            {createPortal(
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300" onClick={(e) => {
+                    // Start closing if clicked outside (optional, but good UX)
+                     // e.stopPropagation();
+                     // onClose?.();
+                     // setStarted(false);
+                }}>
+                    {/* Centered Modal Container */}
+                    <div 
+                        onClick={(e) => e.stopPropagation()} // Prevent click through
+                        className={`w-full max-w-4xl max-h-[90vh] flex flex-col bg-[#121212] backdrop-blur-xl border border-white/20 border-t-white/30 ring-1 ring-white/10 rounded-sm shadow-[0_0_100px_rgba(255,234,5,0.2)] overflow-hidden transition-all duration-500 ease-in-out`}
+                        style={{ height: containerHeight === 'auto' ? 'auto' : containerHeight }}
+                    >
+                        <div ref={contentRef} className="flex flex-col">
        {/* Header */}
        <div className="relative border-b border-white/5 bg-[#000000]/40 backdrop-blur-md">
-          <div className="flex items-center justify-between p-4 relative z-10">
-            <div className="flex items-center gap-2">
-               <div className="w-1.5 h-6 bg-[#FFEA05] rounded-sm"></div>
-               <div className="w-1.5 h-6 bg-[#FFEA05] rounded-sm"></div>
-               <span className="text-white font-bold font-serif tracking-wide text-lg">Build Your Quote</span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 relative z-10 gap-2">
+            {/* Top Row: Logo + Title + Close Button */}
+            <div className="flex items-center justify-between w-full sm:w-auto">
+               <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-5 sm:h-6 bg-[#FFEA05] rounded-sm"></div>
+                  <div className="w-1.5 h-5 sm:h-6 bg-[#FFEA05] rounded-sm"></div>
+                  <span className="text-white font-bold font-serif tracking-wide text-base sm:text-lg">Build Your Quote</span>
+               </div>
+               <button 
+                  onClick={() => { setStarted(false); setStep(1); onClose?.(); }} 
+                  className="text-gray-500 hover:text-white transition-colors sm:absolute sm:top-4 sm:right-4"
+                  aria-label="Exit Configuration"
+               >
+                  <X size={18} />
+               </button>
             </div>
-            <button 
-               onClick={() => { setStarted(false); setStep(1); }} 
-               className="text-gray-500 hover:text-white transition-colors"
-               aria-label="Exit Configuration"
-            >
-               <X size={18} />
-            </button>
-            <div className="absolute top-4 right-12 text-[10px] text-[#ffea05] font-bold font-mono tracking-widest drop-shadow-[0_0_5px_rgba(255,234,5,0.5)]">STEP {step} / 3</div>
+            
+            {/* Stepper Row: Mobile = below title, Desktop = absolute positioned */}
+            <div className="flex items-center justify-center sm:absolute sm:top-4 sm:right-12">
+                <div className="flex items-center gap-2 sm:gap-3">
+                    {['SPECS', 'LOAD', 'FINALIZE'].map((label, i) => (
+                        <div key={label} className="flex items-center gap-1 sm:gap-2">
+                            <span 
+                                className={`text-[9px] sm:text-[10px] font-bold tracking-widest transition-colors duration-500 ${
+                                    step === i + 1 
+                                        ? 'text-[#FFEA05] drop-shadow-[0_0_8px_rgba(255,234,5,0.6)]' 
+                                        : 'text-gray-700'
+                                }`}
+                            >
+                                {label}
+                            </span>
+                            {i < 2 && (
+                                <ChevronRight 
+                                    size={12} 
+                                    className={`text-[#FFEA05] transition-all duration-300 ${step > i ? 'opacity-100 translate-x-0' : 'opacity-30 -translate-x-1'}`} 
+                                    strokeWidth={3}
+                                />
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
           </div>
           
           {/* Progress Bar (Yellow Line) */}
@@ -289,6 +397,33 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                <div className="absolute top-0 right-0 h-full w-20 bg-gradient-to-r from-transparent to-white/50 animate-[shimmer_2s_infinite]"></div>
             </div>
           </div>
+           
+           {/* Task 3: Persistent Config Summary Bar (Steps 2 & 3) */}
+           {(step === 2 || step === 3) && (
+              <div className="w-full bg-black/20 border-t border-white/5 py-1.5 px-4 flex items-center justify-between animate-in fade-in slide-in-from-top-2 relative z-0">
+                 <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-[#FFEA05]/10 border border-[#FFEA05]/20">
+                       <PalletIcon size={10} className="text-[#FFEA05]" />
+                       <span className="text-[9px] font-bold text-[#FFEA05] uppercase tracking-wider">
+                          {formData.type === 'Standard GMA' ? '48x40 GMA' : 'Custom Size'}
+                       </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-white/5 border border-white/10">
+                       <ThermometerSun size={10} className={`${formData.heatTreated ? 'text-[#FFEA05]' : 'text-gray-500'}`} />
+                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                          {formData.heatTreated ? 'ISPM-15' : 'No HT'}
+                       </span>
+                    </div>
+                 </div>
+                 <button 
+                    onClick={() => setStep(1)}
+                    className="text-[9px] font-bold text-gray-500 hover:text-[#FFEA05] transition-colors flex items-center gap-1 group"
+                 >
+                    <span>EDIT</span>
+                    <Settings size={10} className="group-hover:rotate-45 transition-transform" />
+                 </button>
+              </div>
+           )}
        </div>         
        {/* Body */}
         <div className="w-full p-4 relative z-10">
@@ -298,7 +433,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
              <div className="space-y-3">
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                     <label className="text-[10px] font-bold text-gray-300 uppercase tracking-wider block">Pallet Standard</label>
+                     <label className="text-[10px] font-bold text-gray-300 uppercase tracking-wider block animate-pulse">Pallet Standard (Specs)</label>
                      <button 
                         className="flex items-center gap-2 cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#ffea05] rounded px-1 -ml-1 transition-colors" 
                         onClick={() => setFormData({...formData, heatTreated: !formData.heatTreated})}
@@ -306,7 +441,7 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                       >
                          <span className={`text-[10px] font-bold ${formData.heatTreated ? 'text-[#ffea05]' : 'text-gray-400 group-hover:text-white transition-colors'}`}>ISPM-15 Heat Treated</span>
                          <div className={`w-8 h-4 rounded-full relative transition-colors ${formData.heatTreated ? 'bg-[#ffea05]' : 'bg-gray-700'}`}>
-                            <div className={`absolute top-0.5 w-3 h-3 bg-black rounded-full transition-all ${formData.heatTreated ? 'left-4.5' : 'left-0.5'}`}></div>
+                            <div className={`absolute top-0.5 w-3 h-3 bg-black rounded-full transition-all duration-300 ${formData.heatTreated ? 'translate-x-[18px]' : 'translate-x-[2px]'}`}></div>
                          </div>
                       </button>
                   </div>
@@ -314,12 +449,31 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                    <div className="grid grid-cols-2 gap-2 mt-2">
                       {['Standard GMA', 'Custom'].map((type) => (
                         <button 
-                          key={type}
-                          onClick={() => handleTypeChange(type)}
-                        className={`p-2 rounded-sm border text-left transition-all active:scale-[0.98] ${formData.type === type ? 'border-[#FFEA05] bg-[#FFEA05]/10 text-white' : 'border-gray-600 bg-black/40 text-gray-300 hover:border-gray-400 hover:text-white'}`}
+                            key={type}
+                            onClick={() => handleTypeChange(type)}
+                            className={`p-3 rounded-sm border text-left transition-all active:scale-[0.98] relative group ${
+                                formData.type === type 
+                                    ? 'border-[#FFEA05] bg-[#FFEA05]/10 text-white shadow-[0_0_20px_rgba(255,234,5,0.2)]' 
+                                    : 'border-white/10 bg-[#111] text-gray-400 hover:border-[#FFEA05]/50 hover:bg-[#151515] hover:text-white hover:shadow-[0_0_15px_rgba(255,234,5,0.1)]'
+                            }`}
                         >
-                           <span className="block text-xs font-bold">{type}</span>
-                           <span className="text-[9px] opacity-70 block">{type === 'Standard GMA' ? '48x40 | Grocery' : 'Any Size/Spec'}</span>
+                            {/* Selection Checkmark Badge */}
+                            {formData.type === type && (
+                                <div className="absolute top-2 right-2 w-5 h-5 bg-[#FFEA05] rounded-full flex items-center justify-center animate-in zoom-in duration-200">
+                                    <Check size={12} className="text-black" />
+                                </div>
+                            )}
+                            
+                            {/* Icon */}
+                            <div className="mb-2">
+                                {type === 'Standard GMA' 
+                                    ? <PalletIcon size={20} className={formData.type === type ? 'text-[#FFEA05]' : 'text-gray-500 group-hover:text-white'} />
+                                    : <Ruler size={20} className={formData.type === type ? 'text-[#FFEA05]' : 'text-gray-500 group-hover:text-white'} />
+                                }
+                            </div>
+                            
+                            <span className="block text-xs font-bold">{type}</span>
+                            <span className="text-[9px] opacity-70 block">{type === 'Standard GMA' ? '48x40 | Grocery' : 'Any Size/Spec'}</span>
                         </button>
                       ))}
                    </div>
@@ -353,11 +507,11 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                    <div className="space-y-3 pt-2 border-t border-gray-800">
                     <div className="grid grid-cols-2 gap-2">
                          <div>
-                            <span className="text-[9px] text-gray-500 block mb-1 uppercase font-bold">Dimensions</span>
+                            <span className="text-[9px] text-[#FFEA05] block mb-1 uppercase font-bold">Dimensions</span>
                             <input type="text" placeholder="e.g. 48x48" className="w-full bg-[#111] border border-white/10 text-white text-sm rounded-sm p-2" value={formData.customSize} onChange={(e) => setFormData({...formData, customSize: e.target.value})} />
                          </div>
                          <div>
-                            <span className="text-[9px] text-gray-500 block mb-1 uppercase font-bold">Entry</span>
+                            <span className="text-[9px] text-[#FFEA05] block mb-1 uppercase font-bold">Entry</span>
                             <select className="w-full bg-[#111] border border-white/10 text-white text-sm rounded-sm p-2" value={formData.entryType} onChange={(e) => setFormData({...formData, entryType: e.target.value})}>
                                <option value="4-way">4-Way</option>
                                <option value="2-way">2-Way</option>
@@ -372,15 +526,15 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                       {showAdvancedSpecs && (
                           <div className="bg-black/30 p-2 rounded border border-gray-800 space-y-2">
                              <div className="grid grid-cols-5 gap-1 text-center mb-1 pb-1 border-b border-gray-800">
-                                <span className="text-[8px] text-gray-600 font-bold uppercase col-span-1">Comp</span>
-                                <span className="text-[8px] text-gray-600 font-bold uppercase">Count</span>
-                                <span className="text-[8px] text-gray-600 font-bold uppercase">Thick (in)</span>
-                                <span className="text-[8px] text-gray-600 font-bold uppercase">Width (in)</span>
-                                <span className="text-[8px] text-gray-600 font-bold uppercase">Length (in)</span>
+                                <span className="text-[8px] text-white font-bold uppercase col-span-1">Comp</span>
+                                <span className="text-[8px] text-white font-bold uppercase">Count</span>
+                                <span className="text-[8px] text-white font-bold uppercase">Thick (in)</span>
+                                <span className="text-[8px] text-white font-bold uppercase">Width (in)</span>
+                                <span className="text-[8px] text-white font-bold uppercase">Length (in)</span>
                              </div>
                              {[{id: 'topDeck', label: 'Top Board'}, {id: 'bottomDeck', label: 'Bottom Board'}, {id: 'stringers', label: 'Stringers'}].map((sec) => (
                                  <div key={sec.id} className="grid grid-cols-5 gap-1 items-center">
-                                     <span className="text-[9px] text-gray-500 uppercase font-bold col-span-1">{sec.label}</span>
+                                     <span className="text-[9px] text-[#FFEA05] uppercase font-bold col-span-1">{sec.label}</span>
                                      {['count', 'thick', 'width', 'length'].map(f => (
                                          <input key={f} placeholder={f === 'count' ? '#' : 'in'} className="bg-[#000] border border-gray-700 text-white text-[9px] p-1 text-center rounded-sm" 
                                             value={formData.customSpec[sec.id as keyof typeof formData.customSpec][f]} 
@@ -402,36 +556,56 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
           {step === 2 && (
              <div className="space-y-3 animate-in slide-in-from-right-4 fade-in duration-300">
                 <div>
-                   <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Industry / Load</label>
+                   <label className="text-[9px] font-bold text-[#FFEA05] uppercase tracking-wider block mb-1">Industry / Load</label>
                    <div className="grid grid-cols-4 gap-2">
-                      {loadCategories.map((cat) => (
-                         <button
-                           key={cat.name}
-                           onClick={() => setFormData({...formData, category: cat.name})}
-                           className={`flex flex-col items-center justify-center p-1 rounded-sm border h-14 transition-all active:scale-[0.98] ${formData.category === cat.name ? 'border-[#FFEA05] bg-[#FFEA05]/10 text-white' : 'border-gray-600 text-gray-400 hover:bg-white/10 hover:text-white'}`}
-                         >
-                            {React.cloneElement(cat.icon as React.ReactElement, { size: 16 })}
-                            <span className="text-[9px] font-bold mt-1 text-center leading-tight">{cat.name}</span>
-                         </button>
-                      ))}
+                       {loadCategories.map((cat) => (
+                          <button
+                            key={cat.name}
+                            onClick={() => setFormData({...formData, category: cat.name})}
+                            className={`flex flex-col items-center justify-center p-1 rounded-sm border h-14 transition-all active:scale-[0.98] relative group ${
+                                formData.category === cat.name 
+                                    ? 'border-[#FFEA05] bg-[#FFEA05]/10 text-white shadow-[0_0_20px_rgba(255,234,5,0.3)] ring-1 ring-[#FFEA05]/50' 
+                                    : 'border-white/10 bg-[#111] text-gray-400 hover:border-[#FFEA05]/50 hover:bg-[#151515] hover:text-white hover:shadow-[0_0_15px_rgba(255,234,5,0.1)]'
+                            }`}
+                          >
+                             {/* Selection Checkmark Badge - ENHANCED VISIBILITY */}
+                             {formData.category === cat.name && (
+                                 <div className="absolute top-1 right-1 w-5 h-5 bg-[#FFEA05] rounded-full flex items-center justify-center animate-in zoom-in duration-200 shadow-lg z-10">
+                                     <Check size={12} className="text-black" />
+                                 </div>
+                             )}
+
+                             {React.cloneElement(cat.icon as React.ReactElement, { 
+                                 size: 16,
+                                 className: formData.category === cat.name ? 'text-[#FFEA05]' : 'text-current'
+                             })}
+                             <span className="text-[9px] font-bold mt-1 text-center leading-tight">{cat.name}</span>
+                          </button>
+                       ))}
                    </div>
-                    <div className="mt-2">
-                       <label className="text-[9px] font-bold text-gray-300 uppercase tracking-wider block mb-1">Max Load Weight (lbs) - Optional</label>
-                       <input 
-                         type="text" 
-                         placeholder="e.g. 2500" 
-                         className="w-full bg-[#111] border border-gray-600 text-white text-base md:text-xs rounded-sm p-2 focus:border-[#FFEA05] focus:outline-none"
-                         value={formData.maxLoadWeight}
-                         onChange={(e) => setFormData({...formData, maxLoadWeight: e.target.value})}
-                       />
+                    <div className="mt-2 grid grid-cols-2">
+                       <div>
+                          <label className="text-[9px] font-bold text-[#FFEA05] uppercase tracking-wider block mb-1">Max Load Weight</label>
+                          <div className="relative">
+                              <input 
+                                type="text" 
+                                placeholder="e.g. 2500" 
+                                className="w-full bg-[#111] border border-white/20 text-white text-base md:text-xs rounded-sm p-2 pr-8 focus:border-[#FFEA05] focus:bg-black focus:outline-none focus:shadow-[0_0_15px_rgba(255,234,5,0.1)] hover:border-white/40 transition-all duration-300"
+                                value={formData.maxLoadWeight}
+                                onChange={(e) => setFormData({...formData, maxLoadWeight: e.target.value})}
+                              />
+                              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-bold text-gray-500 pointer-events-none">LBS</span>
+                          </div>
+                          <p className="text-[9px] text-gray-500 mt-1 italic">Optional — helps us spec stringer thickness</p>
+                       </div>
                     </div>
                  </div>
 
                  <div className="grid grid-cols-2 gap-2">
                     <div>
-                       <label className="text-[9px] font-bold text-gray-300 uppercase tracking-wider block mb-1">Qty (Per Order)</label>
+                       <label className="text-[9px] font-bold text-[#FFEA05] uppercase tracking-wider block mb-1">Qty (Per Order)</label>
                        <select 
-                          className="w-full bg-[#111] border border-gray-600 text-white text-base md:text-xs rounded-sm p-1.5 focus:border-[#FFEA05] focus:outline-none"
+                          className="w-full bg-[#111] border border-white/20 text-white text-base md:text-xs rounded-sm p-1.5 focus:border-[#FFEA05] focus:bg-black focus:outline-none focus:shadow-[0_0_15px_rgba(255,234,5,0.1)] hover:border-white/40 transition-all duration-300"
                           value={formData.quantity}
                           onChange={(e) => setFormData({...formData, quantity: e.target.value})}
                        >
@@ -441,9 +615,9 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
                        </select>
                     </div>
                     <div>
-                       <label className="text-[9px] font-bold text-gray-300 uppercase tracking-wider block mb-1">Frequency (Monthly)</label>
+                       <label className="text-[9px] font-bold text-[#FFEA05] uppercase tracking-wider block mb-1">Frequency (Monthly)</label>
                        <select 
-                          className="w-full bg-[#111] border border-gray-600 text-white text-base md:text-xs rounded-sm p-1.5 focus:border-[#FFEA05] focus:outline-none"
+                          className="w-full bg-[#111] border border-white/20 text-white text-base md:text-xs rounded-sm p-1.5 focus:border-[#FFEA05] focus:bg-black focus:outline-none focus:shadow-[0_0_15px_rgba(255,234,5,0.1)] hover:border-white/40 transition-all duration-300"
                           value={formData.frequency}
                           onChange={(e) => setFormData({...formData, frequency: e.target.value})}
                        >
@@ -475,77 +649,243 @@ const PalletQuoteCalculator = React.forwardRef(({ isEmbedded = false }: { isEmbe
           {/* STEP 3: CONTACT */}
           {step === 3 && (
              <div className="space-y-4 animate-in slide-in-from-right-4 fade-in duration-300">
-                {/* Contact Info */}
+                {/* Contact Info Fields with Floating Labels */}
                 <div>
-                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2 px-1">03. Contact Info</label>
+                   <label className="text-[10px] font-bold text-[#FFEA05] uppercase tracking-wider block mb-2 px-1">03. Contact Info</label>
                    <div className="grid grid-cols-2 gap-3">
-                       {['name', 'company', 'email', 'phone'].map((field) => (
-                           <div key={field} className="relative group">
-                               <input 
-                                  type={field === 'email' ? 'email' : 'text'} 
-                                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)} 
-                                  value={formData.contact[field as keyof typeof formData.contact]}
-                                  onChange={(e) => setFormData({...formData, contact: {...formData.contact, [field]: e.target.value}})}
-                                  className="w-full bg-[#0A0A0A] border border-gray-700 text-white text-base md:text-sm rounded-sm p-3 focus:border-[#FFEA05] focus:shadow-[0_0_20px_rgba(255,234,5,0.15)] focus:outline-none placeholder:text-gray-600 transition-all" 
-                                />
-                                {formData.contact[field as keyof typeof formData.contact].length > 2 && (
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FFEA05] animate-in zoom-in spin-in-90 duration-300">
-                                        <Check size={14} />
-                                    </div>
-                                )}
-                           </div>
-                       ))}
+                       {[
+                           { key: 'name', label: 'Full Name', type: 'text' },
+                           { key: 'company', label: 'Company', type: 'text' },
+                           { key: 'email', label: 'Email Address', type: 'email' },
+                           { key: 'phone', label: 'Phone Number', type: 'tel' }
+                       ].map((field) => {
+                           const value = formData.contact[field.key as keyof typeof formData.contact];
+                           const hasValue = value.length > 0;
+                           const isValid = value.length > 2;
+                           
+                           return (
+                               <div key={field.key} className="relative group">
+                                   <input
+                                       id={`contact-${field.key}`}
+                                       type={field.type}
+                                       value={value}
+                                       onChange={(e) => setFormData({
+                                           ...formData, 
+                                           contact: {...formData.contact, [field.key]: e.target.value}
+                                       })}
+                                       className={`
+                                           peer w-full bg-[#0A0A0A] border text-white text-sm rounded-sm 
+                                           px-3 pt-5 pb-2 
+                                           focus:outline-none focus:ring-1 focus:ring-[#FFEA05]/30
+                                           transition-all duration-200
+                                           placeholder-transparent
+                                           ${isValid 
+                                               ? 'border-[#FFEA05]/50 focus:border-[#FFEA05]' 
+                                               : 'border-gray-700 focus:border-[#FFEA05]'
+                                           }
+                                           focus:shadow-[0_0_20px_rgba(255,234,5,0.1)]
+                                       `}
+                                       placeholder={field.label}
+                                   />
+                                   
+                                   {/* Floating Label */}
+                                   <label
+                                       htmlFor={`contact-${field.key}`}
+                                       className={`
+                                           absolute left-3 transition-all duration-300 pointer-events-none
+                                           ${hasValue
+                                               ? 'top-0 -translate-y-1/2 text-[11px] text-[#FFEA05] font-bold uppercase tracking-wider bg-[#0A0A0A] px-2 rounded-sm shadow-[0_0_10px_rgba(255,234,5,0.2)]'
+                                               : 'top-1/2 -translate-y-1/2 text-sm text-gray-500'
+                                           }
+                                           peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-[11px] peer-focus:text-[#FFEA05] 
+                                           peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider
+                                           peer-focus:bg-[#0A0A0A] peer-focus:px-2 peer-focus:rounded-sm
+                                           peer-focus:shadow-[0_0_10px_rgba(255,234,5,0.2)]
+                                       `}
+                                   >
+                                       {field.label}
+                                   </label>
+                                   
+                                   {/* Validation Checkmark */}
+                                   {isValid && (
+                                       <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FFEA05] animate-in zoom-in duration-200">
+                                           <Check size={14} />
+                                       </div>
+                                   )}
+                               </div>
+                           );
+                       })}
                    </div>
                 </div>
 
-                {/* Notes & Files */}
-                <div>
-                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2 px-1">Notes & Files</label>
-                   <div className="space-y-3">
-                      <textarea 
-                        placeholder="Forklift access, moisture content, etc." 
-                        rows={3} 
-                        value={formData.notes}
-                        onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                        className="w-full bg-[#0A0A0A] border border-gray-700 text-white text-sm rounded-sm p-3 focus:border-[#FFEA05] focus:outline-none placeholder:text-gray-600 resize-none" 
-                      />
-                      
-                      <button 
-                        className={`w-full border border-dashed rounded-sm p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors group focus:outline-none focus:border-[#FFEA05] focus:ring-1 focus:ring-[#FFEA05]/50 ${formData.fileName ? 'border-[#FFEA05] bg-[#FFEA05]/10' : 'border-gray-700 hover:border-[#FFEA05] bg-[#0A0A0A]'}`}
-                        onClick={() => setFormData({...formData, fileName: 'specs_v1.pdf'})}
-                        aria-label={formData.fileName ? `File uploaded: ${formData.fileName}` : 'Upload Spec Sheet'}
-                      >
-                         <Upload size={16} className={`transition-colors ${formData.fileName ? 'text-[#FFEA05]' : 'text-gray-500 group-hover:text-[#FFEA05]'}`} />
-                         <span className={`text-xs transition-colors ${formData.fileName ? 'text-[#FFEA05]' : 'text-gray-500 group-hover:text-white'}`}>
-                            {formData.fileName || 'Upload Spec Sheet (Optional)'}
-                         </span>
-                      </button>
-                   </div>
-                </div>
+                 {/* Notes & Files */}
+                  <div>
+                     <label className="text-[10px] font-bold text-[#FFEA05] uppercase tracking-wider block mb-2 px-1">Notes & Files</label>
+                     <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-3">
+                        <div className="relative">
+                            <textarea 
+                              placeholder="Forklift access, moisture content, etc." 
+                              rows={4} 
+                              maxLength={500}
+                              value={formData.notes}
+                              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                              className="w-full h-full bg-[#0F0F0F] border border-white/20 text-white text-sm rounded-sm p-3 focus:border-[#FFEA05] focus:bg-black focus:outline-none focus:shadow-[0_0_15px_rgba(255,234,5,0.1)] hover:border-white/40 placeholder:text-gray-600 resize-none pb-6 transition-all duration-300" 
+                            />
+                            <div className="absolute bottom-2 right-2 text-[9px] font-mono text-gray-500">
+                                {formData.notes.length}/500
+                            </div>
+                        </div>
+                        
+                        <button 
+                          className={`w-full border border-dashed rounded-sm p-2 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 group focus:outline-none focus:border-[#FFEA05] focus:ring-1 focus:ring-[#FFEA05]/50 relative overflow-hidden h-full min-h-[100px] ${formData.fileName ? 'border-[#FFEA05] bg-[#FFEA05]/5' : 'border-gray-700 hover:border-[#FFEA05] bg-[#0A0A0A] hover:bg-white/5'}`}
+                          onClick={() => setFormData({...formData, fileName: 'specs_v1.pdf'})}
+                          aria-label={formData.fileName ? `File uploaded: ${formData.fileName}` : 'Upload Spec Sheet'}
+                        >
+                           {/* Shimmer Effect */}
+                           {!formData.fileName && (
+                               <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"></div>
+                           )}
+
+                           <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${formData.fileName ? 'bg-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.4)] scale-110' : 'bg-white/5 group-hover:bg-[#FFEA05] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(255,234,5,0.3)]'}`}>
+                              <Upload size={18} className={`transition-colors duration-300 ${formData.fileName ? 'text-black' : 'text-gray-400 group-hover:text-black'}`} />
+                           </div>
+                           
+                           <div className="flex flex-col items-center relative z-10 w-full px-2 text-center">
+                              <span className={`text-[10px] font-bold transition-colors truncate w-full ${formData.fileName ? 'text-[#FFEA05]' : 'text-gray-300 group-hover:text-white'}`}>
+                                 {formData.fileName || 'Upload Specs'}
+                              </span>
+                              <span className="text-[8px] text-gray-500 uppercase tracking-wider font-medium">
+                                 {formData.fileName ? 'Change File' : 'PDF / Images'}
+                              </span>
+                           </div>
+                        </button>
+                     </div>
+                  </div>
              </div>
+
            )}
+
+          {/* STEP 4: SUCCESS (The "Wood Shop" Ticket) */}
+                {step === 4 && createPortal(
+                 <div className="fixed inset-0 z-[9999] bg-[#111] animate-in zoom-in-95 fade-in duration-500 flex flex-col items-center text-center p-6 pb-20 overflow-y-auto custom-scrollbar">
+                
+                {/* Visual Anchor: Golden Check */}
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#FFEA05]/10 border border-[#FFEA05] flex items-center justify-center mb-4 sm:mb-6 shadow-[0_0_30px_rgba(255,234,5,0.2)] animate-[pulse_3s_infinite] shrink-0">
+                    <Check size={24} className="text-[#FFEA05] sm:hidden" strokeWidth={3} />
+                    <Check size={32} className="text-[#FFEA05] hidden sm:block" strokeWidth={3} />
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-[#FFEA05] mb-2 sm:mb-4 drop-shadow-[0_2px_10px_rgba(255,234,5,0.3)] shrink-0">
+                    Quote Request Received
+                </h2>
+
+                <p className="text-white text-xs sm:text-sm md:text-base max-w-lg mb-4 sm:mb-8 leading-relaxed opacity-90 shrink-0">
+                    Thank you for the opportunity. We're reviewing your specs manually. <br className="hidden sm:block"/>
+                    A member of our team will contact you shortly.
+                </p>
+
+                {/* The Ticket / Reference Box */}
+                <div className="bg-[#111] border border-white/10 rounded-sm p-4 sm:p-6 w-full max-w-md mb-4 sm:mb-8 relative overflow-hidden group shrink-0">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-[#FFEA05]"></div>
+                    <p className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Your Reference Ticket</p>
+                    <p className="text-xl sm:text-2xl font-mono text-white tracking-widest">{quoteId}</p>
+                    <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-[#FFEA05]/5 rounded-full blur-xl group-hover:bg-[#FFEA05]/10 transition-colors"></div>
+                </div>
+
+                {/* Contact Grid - Compact on Mobile */}
+                <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 border-t border-white/10 pt-6 sm:pt-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-forwards shrink-0 pb-12">
+                    <div className="flex flex-col items-center gap-2 sm:gap-3 group">
+                        <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
+                            <Phone size={20} className="sm:hidden animate-[pulse_3s_ease-in-out_infinite]" />
+                            <Phone size={24} className="hidden sm:block animate-[pulse_3s_ease-in-out_infinite]" />
+                        </div>
+                        <p className="text-[10px] sm:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Call</p>
+                        <div className="text-sm sm:text-base md:text-lg text-white text-center font-medium leading-relaxed">
+                            <span className="block group-hover:text-[#FFEA05] transition-colors"><span className="text-gray-500 text-xs sm:text-sm mr-2">General:</span>647-617-9511</span>
+                            <span className="block group-hover:text-[#FFEA05] transition-colors"><span className="text-gray-500 text-xs sm:text-sm mr-2">Sales:</span>647-951-3080</span>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-2 sm:gap-3 group">
+                        <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
+                            <Mail size={20} className="sm:hidden animate-[pulse_3s_ease-in-out_infinite] delay-700" />
+                            <Mail size={24} className="hidden sm:block animate-[pulse_3s_ease-in-out_infinite] delay-700" />
+                        </div>
+                        <p className="text-[10px] sm:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Email</p>
+                        <a href="mailto:sales@sunpacpallets.com" className="text-sm sm:text-base md:text-lg text-white group-hover:text-[#FFEA05] transition-colors font-medium break-all">
+                            sales@sunpacpallets.com
+                        </a>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-2 sm:gap-3 group">
+                         <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
+                            <MapPin size={20} className="sm:hidden animate-[pulse_3s_ease-in-out_infinite] delay-1000" />
+                            <MapPin size={24} className="hidden sm:block animate-[pulse_3s_ease-in-out_infinite] delay-1000" />
+                        </div>
+                        <p className="text-[10px] sm:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Production Facility</p>
+                        <p className="text-sm sm:text-base md:text-lg text-white text-center leading-relaxed font-medium group-hover:text-[#FFEA05] transition-colors">
+                            8999 Concession Rd 5<br/>
+                            Uxbridge, Ontario L9P 1R1
+                        </p>
+                    </div>
+                </div>
+
+                {/* Return Home Action */}
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="mt-4 sm:mt-12 text-gray-500 text-[10px] sm:text-xs hover:text-white transition-colors flex items-center gap-2 uppercase tracking-widest shrink-0 pb-8"
+                >
+                    <ArrowLeft size={12} /> Return to Home Page
+                </button>
+             </div>,
+             document.body
+          )}
         </div>
 
-       {/* Footer */}
-       <div className="p-3 bg-[#000000]/60 backdrop-blur-md border-t border-white/5 flex gap-2 relative z-10">
+       {/* Footer - Hides on Success Step 4 */}
+       {step !== 4 && (
+        <div className="p-3 bg-[#000000]/60 backdrop-blur-md border-t border-white/5 flex gap-2 relative z-10">
           {step > 1 && (
              <button onClick={handleBack} className="p-2 rounded-sm border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
                 <ArrowLeft size={16} />
              </button>
           )}
-          <button onClick={handleNext} className={`flex-1 bg-[#FFEA05] text-black font-bold text-xs rounded-sm py-2 hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,234,5,0.2)] hover:shadow-[0_0_20px_rgba(255,234,5,0.5)] relative overflow-hidden group ${step === 3 && formData.contact.name && formData.contact.email ? 'ring-2 ring-white/50' : ''}`}>
-             {/* Shimmer Effect for Ready State */}
-             {(step < 3 || (step === 3 && formData.contact.name && formData.contact.email)) && (
+          <button 
+             onClick={handleNext} 
+             disabled={step === 3 && (!formData.contact.name || !formData.contact.email)}
+             className={`
+                flex-1 font-bold text-xs rounded-sm py-2 transition-all flex items-center justify-center gap-2 relative overflow-hidden group
+                ${step === 3 && (!formData.contact.name || !formData.contact.email)
+                    ? 'bg-gray-800 text-gray-500 border border-white/10 cursor-not-allowed opacity-50'
+                    : 'bg-[#FFEA05] text-black hover:bg-white hover:scale-[1.02] shadow-[0_0_15px_rgba(255,234,5,0.2)] hover:shadow-[0_0_30px_rgba(255,234,5,0.6)]'
+                }
+                ${(step !== 3 || (formData.contact.name && formData.contact.email)) ? 'animate-[pulse_3s_infinite] shadow-[0_0_20px_rgba(255,234,5,0.4)]' : ''}
+             `}
+          >
+             {/* Shimmer Effect (Only when active) */}
+             {!(step === 3 && (!formData.contact.name || !formData.contact.email)) && (
                  <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent z-0"></div>
              )}
+             
              <span className="relative z-10 flex items-center gap-2">
-                {step === 3 ? 'Submit Quote Request' : 'Next Step'} {step !== 3 && <ArrowRight size={14} />} {step === 3 && <CheckCircle2 size={14} />}
+                {step === 3 ? 'Submit Quote Request' : 'Next Step'} 
+                {step !== 3 && <ArrowRight size={14} />} 
+                {step === 3 && <CheckCircle2 size={14} className={formData.contact.name && formData.contact.email ? "animate-bounce" : ""} />}
              </span>
           </button>
        </div>
+       )}
     </div>
-  </div>
-  );
+                    </div>
+                </div>,
+                document.body
+            )}
+        </>
+      );
+  }
+
+  // Fallback (should be covered by !started or started)
+  return null;
 });
 
 PalletQuoteCalculator.displayName = 'PalletQuoteCalculator';
@@ -640,9 +980,10 @@ const AuditModal = ({ isOpen, onClose, onQualify }: { isOpen: boolean, onClose: 
 
 interface NavbarProps {
     onRequestQuote: () => void;
+    isQuoteActive?: boolean;
 }
 
-const Navbar = ({ onRequestQuote }: NavbarProps) => {
+const Navbar = ({ onRequestQuote, isQuoteActive = false }: NavbarProps) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isServicesOpen, setIsServicesOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -675,12 +1016,12 @@ const Navbar = ({ onRequestQuote }: NavbarProps) => {
         { name: "New Pallets", href: "#" },
         { name: "Custom Pallets", href: "#" },
         { name: "Heat Treated Pallets", href: "#" },
-        { name: "Wood Cutting", href: "#" }
+        { name: "Wood Cutting", href: "/wood-cutting" }
     ];
 
     return (
         <>
-            <nav className={`fixed top-4 left-4 right-4 z-50 transition-all duration-500 ${isScrolled ? 'top-2' : 'top-4'}`}>
+            <nav className={`fixed top-4 left-4 right-4 transition-all duration-500 ${isScrolled ? 'top-2' : 'top-4'} ${isQuoteActive ? 'opacity-0 pointer-events-none' : 'z-50'}`}>
                 <div className={`max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex justify-between items-center rounded-sm transition-all duration-300 border backdrop-blur-md shadow-2xl ${isScrolled ? 'bg-black/80 border-white/20' : 'bg-white/5 border-white/10'}`}>
                     {/* LOGO SECTION - PRO MAX UPGRADE */}
                     <div 
@@ -816,10 +1157,12 @@ const Navbar = ({ onRequestQuote }: NavbarProps) => {
 };
 
 interface HeroProps {
-    calculatorRef: React.RefObject<{ start: (isQualified: boolean) => void } | null>;
+    calculatorRef: React.RefObject<{ start: (isQualified: boolean) => void; isStarted: () => boolean; close: () => void } | null>;
+    isQuoteActive: boolean;
+    setIsQuoteActive: (active: boolean) => void;
 }
 
-const Hero = ({ calculatorRef }: HeroProps) => {
+const Hero = ({ calculatorRef, isQuoteActive, setIsQuoteActive }: HeroProps) => {
     const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
     // calculatorRef is now passed as prop
 
@@ -827,25 +1170,34 @@ const Hero = ({ calculatorRef }: HeroProps) => {
         setIsAuditModalOpen(false);
         if (calculatorRef.current) {
             calculatorRef.current.start(qualified);
+            setIsQuoteActive(true);
         }
         // REMOVED: Smooth scroll caused jarring page jumps. User stays in context.
         // document.getElementById('quote-calculator')?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    // Handle scrim click to close wizard
+    const handleScrimClick = () => {
+        if (calculatorRef.current) {
+            calculatorRef.current.close();
+            setIsQuoteActive(false);
+        }
+    };
+
     return (
 
-        <section className="relative pt-32 pb-16 md:pb-24 px-4 md:px-6 overflow-hidden min-h-[90vh] flex items-center">
+        <section className="relative pt-32 pb-16 px-6 overflow-hidden min-h-[90vh] flex items-center">
              {/* Background Effects */}
              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FFEA05]/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 md:gap-16 items-center relative z-10 w-full">
+             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center w-full">
                  <div className="space-y-6 md:space-y-8 relative z-20">
                      <div className="inline-flex items-center gap-2 border border-[#FFEA05]/30 bg-[#FFEA05]/10 text-[#FFEA05] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(255,234,5,0.1)] backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700 animate-[pulse-shadow_3s_infinite]">
                          <span className="relative flex h-2 w-2">
                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFEA05] opacity-75"></span>
                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FFEA05]"></span>
                          </span>
-                         Now Accepting New Customers For 2026
+                         Now Accepting New Customers for {new Date().toLocaleString('en-US', { month: 'long' })}, {new Date().getFullYear()}
                      </div>
                      
                      <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] md:leading-[0.85] tracking-tight animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200 fill-mode-both">
@@ -894,9 +1246,44 @@ const Hero = ({ calculatorRef }: HeroProps) => {
                      </div>
                  </div>
 
+                 {/* FOCUS MODE SCRIM OVERLAY */}
+                 {isQuoteActive && (
+                     <div 
+                         className="fixed inset-0 z-40 cursor-pointer animate-in fade-in duration-500"
+                         onClick={handleScrimClick}
+                         aria-label="Close quote builder"
+                     >
+                        {/* Cinematic Background Layer */}
+                        <div 
+                            className="absolute inset-0 bg-cover bg-center pointer-events-none transition-transform duration-[20s] ease-linear scale-105 animate-[ken-burns_20s_infinite_alternate]"
+                            style={{ backgroundImage: "url('/images/obsidian-pallet.jpg')" }}
+                        />
+                        {/* Heavy Scrim for Contrast */}
+                        <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" />
+                     </div>
+                 )}
+
                  {/* EMBEDDED CALCULATOR */}
-                 <div id="quote-calculator" className="relative animate-in slide-in-from-bottom-8 fade-in duration-700 delay-100">
-                    <PalletQuoteCalculator ref={calculatorRef} isEmbedded={true} />
+                 <div 
+                     id="quote-calculator" 
+                     className={`
+                         transition-all duration-500 ease-in-out
+                         ${isQuoteActive 
+                             ? 'fixed inset-0 z-[60] flex items-center justify-center md:p-4 pointer-events-none' 
+                             : 'relative animate-in slide-in-from-bottom-8 fade-in duration-700 delay-100'
+                         }
+                     `}
+                 >
+                     <div className={`transition-all duration-500 ${isQuoteActive ? 'w-full h-full md:h-auto md:max-w-4xl pointer-events-auto' : 'w-full h-[550px]'}`}>
+                          <div className="relative w-full h-full rounded-sm border border-[#FFEA05]/30 shadow-2xl overflow-hidden bg-[#202020]">
+                              {/* Corner Brackets */}
+                              <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#FFEA05]"></div>
+                              <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#FFEA05]"></div>
+                              <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#FFEA05]"></div>
+                              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#FFEA05]"></div>
+                              <PalletQuoteCalculator ref={calculatorRef} isEmbedded={true} onClose={() => setIsQuoteActive(false)} onOpen={() => setIsQuoteActive(true)} />
+                          </div>
+                      </div>
                  </div>
              </div>
 
@@ -1026,8 +1413,7 @@ const EfficiencySection = () => {
                         <span className="text-[#00FF94] text-[10px] font-mono uppercase tracking-widest">Hold Click to Rotate</span>
                     </div>
 
-                    {/* Scanner Bar Animation */}
-                     <div className="absolute top-0 left-0 w-full h-[2px] bg-[#00FF94] shadow-[0_0_20px_#00FF94] animate-[scan_3s_ease-in-out_infinite] pointer-events-none z-10"></div>
+
 
                     {/* 3D Pallet Container */}
                     <div className="absolute top-1/2 left-1/2 w-64 h-64 pointer-events-none" style={{ perspective: '1000px' }}>
@@ -1154,6 +1540,9 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
                                     <input type="email" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors rounded-none placeholder-gray-600 text-sm" placeholder="EMAIL" />
                                 </div>
                             </div>
+                            
+                            {/* Company Field */}
+                            <input type="text" className="w-full bg-[#050505] border border-white/10 text-white px-3 py-2.5 focus:border-[#FFEA05] focus:outline-none transition-colors rounded-none placeholder-gray-600 text-sm" placeholder="COMPANY" />
                             
                             <div className="relative">
                                 {isCustomSubject ? (
@@ -1312,8 +1701,9 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
 
              {/* Footer Bottom Line */}
              <div className="max-w-7xl mx-auto px-6 mt-16 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-zinc-600 font-mono uppercase">
-                 <div>
-                     Sun Pac Pallets Inc. © 2026 // EST. 2002
+                 <div className="flex items-center gap-3 opacity-50 hover:opacity-100 transition-opacity">
+                     <img src="/images/cwpca-logo.png" alt="CWPCA" className="h-6 w-auto grayscale" />
+                     <span>Sun Pac Pallets Inc. © 2026 // EST. 2002</span>
                  </div>
                  <div className="flex gap-8">
                      <a href="#" className="hover:text-zinc-400 transition-colors">Privacy Protocol</a>
@@ -1328,7 +1718,18 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
 };
 
 export default function MockRedesignPage() {
-  const calculatorRef = useRef<{ start: (isQualified: boolean) => void }>(null);
+  const calculatorRef = useRef<{ start: (isQualified: boolean) => void; isStarted: () => boolean; close: () => void }>(null);
+  const [isQuoteActive, setIsQuoteActive] = useState(false);
+
+  // Lock scroll when wizard is active
+  useEffect(() => {
+    if (isQuoteActive) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isQuoteActive]);
 
   const handleRequestQuote = () => {
       // 1. Scroll to top immediately
@@ -1336,13 +1737,38 @@ export default function MockRedesignPage() {
       // 2. Start calculator (defaults to Step 1)
       if (calculatorRef.current) {
           calculatorRef.current.start(false);
+          setIsQuoteActive(true);
       }
   };
 
   return (
     <DarkIndustrialTheme>
-      <Navbar onRequestQuote={handleRequestQuote} />
-      <Hero calculatorRef={calculatorRef} />
+      <Navbar onRequestQuote={handleRequestQuote} isQuoteActive={isQuoteActive} />
+      <Hero calculatorRef={calculatorRef} isQuoteActive={isQuoteActive} setIsQuoteActive={setIsQuoteActive} />
+      
+      {/* Trust Banner (CWPCA) */}
+      <section className="w-full bg-[#0A0A0A] border-b border-[#FFEA05]/10 py-5 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300 fill-mode-both">
+          <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 opacity-80 hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-4 group cursor-default">
+                  <img src="/images/cwpca-logo.png" alt="CWPCA Member" className="h-10 w-auto filter grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" />
+                  <div className="text-left leading-none">
+                      <span className="block text-[#FFEA05] font-bold text-[10px] uppercase tracking-widest mb-1">Verified Member</span>
+                      <span className="block text-gray-500 font-mono text-[9px] tracking-wider">Canadian Wood Pallet & Container Assn.</span>
+                  </div>
+              </div>
+              <div className="hidden sm:block h-8 w-[1px] bg-white/10"></div>
+              <div className="flex items-center gap-8 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
+                  <span className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-[#FFEA05] rounded-full animate-pulse"></div>
+                      ISPM-15 Certified
+                  </span>
+                  <span className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-[#FFEA05] rounded-full"></div>
+                      Smart Design
+                  </span>
+              </div>
+          </div>
+      </section>
       <ProcessTimeline />
       <EfficiencySection />
       <Footer onRequestQuote={handleRequestQuote} />

@@ -8,9 +8,9 @@ import {
   Phone, Mail, MapPin, ArrowLeft,
   Trees, Truck, Settings, Hammer, ClipboardList, Upload, ThermometerSun, PlayCircle
 } from 'lucide-react';
-import { DarkIndustrialTheme, IndustrialNavbar } from '@/components/mock-redesign';
+import { DarkIndustrialTheme, IndustrialNavbar } from '@/components/industrial';
 import MachineryModal from './MachineryModal';
-import '../animations.css';
+import './animations.css';
 
 // --- HEX CODE CONSTANTS ---
 const HexCodes = {
@@ -650,69 +650,73 @@ const WoodCuttingQuoteForm = React.forwardRef(({ isEmbedded = false, onClose, on
                   </div>
                 )}
 
-                {step === 4 && (
-                 <div className="animate-in zoom-in-95 fade-in duration-500 flex flex-col items-center text-center p-4 sm:p-6 pb-8">
+                {step === 4 && createPortal(
+                 <div className="fixed inset-0 z-[9999] bg-[#111] animate-in zoom-in-95 fade-in duration-500 flex flex-col items-center text-center p-6 pb-20 overflow-y-auto custom-scrollbar">
                     
                     {/* Visual Anchor: Golden Check */}
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#FFEA05]/10 border border-[#FFEA05] flex items-center justify-center mb-4 sm:mb-6 shadow-[0_0_30px_rgba(255,234,5,0.2)] animate-[pulse_3s_infinite]">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#FFEA05]/10 border border-[#FFEA05] flex items-center justify-center mb-4 sm:mb-6 shadow-[0_0_30px_rgba(255,234,5,0.2)] animate-[pulse_3s_infinite] shrink-0">
                         <Check size={24} className="text-[#FFEA05] sm:hidden" strokeWidth={3} />
                         <Check size={32} className="text-[#FFEA05] hidden sm:block" strokeWidth={3} />
                     </div>
 
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-[#FFEA05] mb-3 sm:mb-4 drop-shadow-[0_2px_10px_rgba(255,234,5,0.3)]">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-[#FFEA05] mb-2 sm:mb-4 drop-shadow-[0_2px_10px_rgba(255,234,5,0.3)] shrink-0">
                         Quote Request Received
                     </h2>
 
-                    <p className="text-white text-xs sm:text-sm md:text-base max-w-lg mb-4 sm:mb-8 leading-relaxed opacity-90">
+                    <p className="text-white text-xs sm:text-sm md:text-base max-w-lg mb-4 sm:mb-8 leading-relaxed opacity-90 shrink-0">
                         Thank you for the opportunity. We're reviewing your specs manually. <br className="hidden sm:block"/>
                         A member of our team will contact you shortly.
                     </p>
 
                     {/* The Ticket / Reference Box */}
-                    <div className="bg-[#111] border border-white/10 rounded-sm p-4 sm:p-6 w-full max-w-md mb-4 sm:mb-8 relative overflow-hidden group">
+                    <div className="bg-[#111] border border-white/10 rounded-sm p-4 sm:p-6 w-full max-w-md mb-4 sm:mb-8 relative overflow-hidden group shrink-0">
                         <div className="absolute top-0 left-0 w-1 h-full bg-[#FFEA05]"></div>
                         <p className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Your Reference Ticket</p>
                         <p className="text-xl sm:text-2xl font-mono text-white tracking-widest">{quoteId}</p>
                         <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-[#FFEA05]/5 rounded-full blur-xl group-hover:bg-[#FFEA05]/10 transition-colors"></div>
                     </div>
 
-                    {/* Contact Grid - "Wood Shop Style" (Copied from Home Page) */}
-                    <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-3 gap-8 border-t border-white/10 pt-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-forwards">
-                        <div className="flex flex-col items-center gap-3 group">
-                            <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
-                                <Phone size={24} className="animate-[pulse_3s_ease-in-out_infinite]" />
+                    {/* Contact Grid - Compact on Mobile */}
+                    <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 border-t border-white/10 pt-6 sm:pt-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-forwards shrink-0 pb-12">
+                        <div className="flex flex-col items-center gap-2 sm:gap-3 group">
+                            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
+                                <Phone size={20} className="sm:hidden animate-[pulse_3s_ease-in-out_infinite]" />
+                                <Phone size={24} className="hidden sm:block animate-[pulse_3s_ease-in-out_infinite]" />
                             </div>
-                            <p className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Call</p>
-                            <div className="text-base md:text-lg text-white text-center font-medium leading-relaxed">
-                                <span className="block group-hover:text-[#FFEA05] transition-colors"><span className="text-gray-500 text-sm mr-2">General:</span>647-617-9511</span>
-                                <span className="block group-hover:text-[#FFEA05] transition-colors"><span className="text-gray-500 text-sm mr-2">Sales:</span>647-951-3080</span>
+                            <p className="text-[10px] sm:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Call</p>
+                            <div className="text-sm sm:text-base md:text-lg text-white text-center font-medium leading-relaxed">
+                                <span className="block group-hover:text-[#FFEA05] transition-colors"><span className="text-gray-500 text-xs sm:text-sm mr-2">General:</span>647-617-9511</span>
+                                <span className="block group-hover:text-[#FFEA05] transition-colors"><span className="text-gray-500 text-xs sm:text-sm mr-2">Sales:</span>647-951-3080</span>
                             </div>
                         </div>
 
-                        <div className="flex flex-col items-center gap-3 group">
-                            <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
-                                <Mail size={24} className="animate-[pulse_3s_ease-in-out_infinite] delay-700" />
+                        <div className="flex flex-col items-center gap-2 sm:gap-3 group">
+                            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
+                                <Mail size={20} className="sm:hidden animate-[pulse_3s_ease-in-out_infinite] delay-700" />
+                                <Mail size={24} className="hidden sm:block animate-[pulse_3s_ease-in-out_infinite] delay-700" />
                             </div>
-                            <p className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Email</p>
-                            <a href="mailto:sales@sunpacpallets.com" className="text-base md:text-lg text-white group-hover:text-[#FFEA05] transition-colors font-medium break-all">
+                            <p className="text-[10px] sm:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Email</p>
+                            <a href="mailto:sales@sunpacpallets.com" className="text-sm sm:text-base md:text-lg text-white group-hover:text-[#FFEA05] transition-colors font-medium break-all">
                                 sales@sunpacpallets.com
                             </a>
                         </div>
 
-                        <div className="flex flex-col items-center gap-3 group">
-                             <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
-                                <MapPin size={24} className="animate-[pulse_3s_ease-in-out_infinite] delay-1000" />
+                        <div className="flex flex-col items-center gap-2 sm:gap-3 group">
+                                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#FFEA05] shadow-[0_0_15px_rgba(255,234,5,0.1)] group-hover:scale-110 group-hover:bg-white/10 group-hover:shadow-[0_0_25px_rgba(255,234,5,0.4)] transition-all duration-300">
+                                <MapPin size={20} className="sm:hidden animate-[pulse_3s_ease-in-out_infinite] delay-1000" />
+                                <MapPin size={24} className="hidden sm:block animate-[pulse_3s_ease-in-out_infinite] delay-1000" />
                             </div>
-                            <p className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Production Facility</p>
-                            <p className="text-base md:text-lg text-white text-center leading-relaxed font-medium group-hover:text-[#FFEA05] transition-colors">
+                            <p className="text-[10px] sm:text-sm font-bold text-gray-400 uppercase tracking-[0.2em] group-hover:text-white transition-colors">Production Facility</p>
+                            <p className="text-sm sm:text-base md:text-lg text-white text-center leading-relaxed font-medium group-hover:text-[#FFEA05] transition-colors">
                                 8999 Concession Rd 5<br/>
                                 Uxbridge, Ontario L9P 1R1
                             </p>
                         </div>
                     </div>
 
-                    <button onClick={() => window.location.reload()} className="mt-8 text-gray-500 text-xs hover:text-white flex items-center gap-2 uppercase tracking-widest"><ArrowLeft size={12} /> Return</button>
-                  </div>
+                    <button onClick={() => window.location.reload()} className="mt-8 text-gray-500 text-[10px] sm:text-xs hover:text-white flex items-center gap-2 uppercase tracking-widest shrink-0 pb-8"><ArrowLeft size={12} /> Return</button>
+                  </div>,
+                  document.body
                 )}
               </div>
 
