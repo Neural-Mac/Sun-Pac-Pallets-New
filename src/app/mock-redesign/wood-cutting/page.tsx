@@ -6,9 +6,10 @@ import {
   ArrowRight, CheckCircle2, X, ChevronDown, ChevronRight,
   Ruler, Factory, Scissors, Layers, Check,
   Phone, Mail, MapPin, ArrowLeft,
-  Trees, Truck, Settings, Hammer, ClipboardList, Upload, ThermometerSun
+  Trees, Truck, Settings, Hammer, ClipboardList, Upload, ThermometerSun, PlayCircle
 } from 'lucide-react';
 import { DarkIndustrialTheme, IndustrialNavbar } from '@/components/mock-redesign';
+import MachineryModal from './MachineryModal';
 import '../animations.css';
 
 // --- HEX CODE CONSTANTS ---
@@ -966,6 +967,7 @@ const Footer = ({ onRequestQuote }: { onRequestQuote: () => void }) => {
 // --- MAIN PAGE ---
 const WoodCuttingPage = () => {
   const [isQuoteActive, setIsQuoteActive] = useState(false);
+  const [isMachineModalOpen, setMachineModalOpen] = useState(false);
   const calculatorRef = useRef<{ start: () => void; isStarted: () => boolean; close: () => void }>(null);
 
   useEffect(() => {
@@ -1017,13 +1019,13 @@ const WoodCuttingPage = () => {
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
               </button>
               
-              <a 
-                href="#services" 
+              <button 
+                onClick={() => setMachineModalOpen(true)} 
                 className="border border-white/20 hover:border-[#FFEA05] text-white px-10 py-5 rounded-sm font-black text-sm uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center gap-3 group backdrop-blur-md relative overflow-hidden active:scale-95"
               >
-                <ChevronDown className="text-[#FFEA05] group-hover:translate-y-1 transition-transform duration-500" size={24} />
-                View Capabilities
-              </a>
+                <PlayCircle className="text-[#FFEA05] group-hover:scale-110 transition-transform duration-500" size={24} />
+                See Our Machines
+              </button>
             </div>
           </div>
           
@@ -1096,6 +1098,7 @@ const WoodCuttingPage = () => {
 
       <IndustriesSection />
       <Footer onRequestQuote={handleRequestQuote} />
+      <MachineryModal isOpen={isMachineModalOpen} onClose={() => setMachineModalOpen(false)} />
     </DarkIndustrialTheme>
   );
 };
