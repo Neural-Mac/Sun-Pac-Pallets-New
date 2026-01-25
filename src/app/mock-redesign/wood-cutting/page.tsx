@@ -356,10 +356,10 @@ const WoodCuttingQuoteForm = React.forwardRef(({ isEmbedded = false, onClose, on
                         <div 
                             className="w-full h-full animate-[ken-burns_12s_ease-in-out_infinite] group-hover:scale-110 transition-transform duration-700"
                             style={{
-                                backgroundImage: "url('/images/wood-cutting/quote-idle-bg.png')",
+                                backgroundImage: "url('/images/wood-cutting/quote-idle-bg-v5.png')",
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center',
-                                filter: 'contrast(1.25) brightness(0.6) saturate(0)' // Obsidian Lighting: Dark, High Contrast, Grayscale-ish
+                                filter: 'brightness(1.0) contrast(1.1)' // Obsidian 3.0: Full brightness, sharp contrast
                             }}
                         ></div>
                         {/* Dramatic Gold Lighting Overlay - Obsidian Style */}
